@@ -67,7 +67,11 @@
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column label="线路ID" align="center" prop="id" />
         <el-table-column label="线路代码(唯一)" align="center" prop="code" />
-        <el-table-column label="线路名称" align="center" prop="name" min-width="200"/>
+        <el-table-column label="线路名称" align="center" prop="name" min-width="200">
+          <template #default="scope">
+            <a class="text-blue-500 cursor-pointer hover:underline hover:text-blue-700" @click.prevent="handleItinerary(scope.row)">{{ scope.row.name }}</a>
+          </template>
+        </el-table-column>
         <el-table-column label="描述" align="center" prop="description" :show-overflow-tooltip="true" />
         <el-table-column label="行程天数" align="center" prop="durationDays" />
         <el-table-column label="旅行风格" align="center" prop="travelStyle" min-width="100">
@@ -118,8 +122,14 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" :min-width="200">
           <template #default="scope">
+            <el-tooltip content="详情" placement="top">
+              <el-button link type="primary" icon="View" @click="handleDetail(scope.row)"></el-button>
+            </el-tooltip>
+            <el-tooltip content="服务项" placement="top">
+              <el-button link type="primary" icon="Tickets" @click="handleServiceItem(scope.row)"></el-button>
+            </el-tooltip>
             <el-tooltip content="修改" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['boxhilltravel_manager:tour:edit']"></el-button>
             </el-tooltip>
@@ -247,6 +257,62 @@
         </div>
       </template>
     </el-dialog>
+
+    <el-dialog title="线路详情" v-model="detailVisible" width="760px" append-to-body @closed="handleDetailClosed">
+      <el-descriptions v-loading="detailLoading" :column="2" border>
+        <el-descriptions-item label="线路ID">{{ detailForm.id ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="线路代码">{{ detailForm.code || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="线路名称" :span="2">{{ detailForm.name || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="行程天数">{{ detailForm.durationDays ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="最小年龄">{{ detailForm.minAge ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="旅行风格">
+          <dict-tag v-if="hasDetailValue(detailForm.travelStyle)" :options="holidays_tour_travel_style" :value="detailForm.travelStyle"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="服务等级">
+          <dict-tag v-if="hasDetailValue(detailForm.serviceLevel)" :options="holidays_tour_service_level" :value="detailForm.serviceLevel"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="线路强度">
+          <dict-tag v-if="hasDetailValue(detailForm.physicalRating)" :options="holidays_tour_physical_rating" :value="detailForm.physicalRating"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="线路类型">
+          <dict-tag v-if="hasDetailValue(detailForm.tripType)" :options="holidays_tour_trip_type" :value="detailForm.tripType"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="基础价格">{{ detailForm.basePrice ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="销售价格">{{ detailForm.salePrice ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="货币">
+          <dict-tag v-if="hasDetailValue(detailForm.currency)" :options="holidays_currency_unit" :value="detailForm.currency"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="detailForm.status === statusActiveValue ? 'success' : 'info'">
+            {{ detailForm.status === statusActiveValue ? '启用' : '停用' }}
+          </el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="封面图" :span="1">
+          <image-preview v-if="detailForm.coverImageUrl" :src="detailForm.coverImageUrl" :width="70" :height="70"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="地图图" :span="1">
+          <image-preview v-if="detailForm.mapImageUrl" :src="detailForm.mapImageUrl" :width="70" :height="70"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="描述" :span="2">{{ detailForm.description || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="notes" :span="2">{{ detailForm.notes || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="SEO标题" :span="2">{{ detailForm.seoTitle || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="SEO描述" :span="2">{{ detailForm.seoDescription || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="SEO关键词" :span="2">{{ detailForm.seoKeywords || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="删除时间" :span="2">{{ detailForm.deletedAt ? parseTime(detailForm.deletedAt) : '-' }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="detailVisible = false">关 闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -268,6 +334,7 @@ import { useTableSelection } from '@/hooks/table/useTableSelection';
 import { useDict } from '@/utils/dict';
 import { parseTime } from '@/utils/ruoyi';
 import modal from '@/plugins/modal';
+import tab from '@/plugins/tab';
 
 const { holidays_currency_unit, holidays_tour_physical_rating, holidays_tour_service_level, holidays_tour_trip_type, holidays_tour_travel_style } = toRefs<any>(useDict('holidays_currency_unit', 'holidays_tour_physical_rating', 'holidays_tour_service_level', 'holidays_tour_trip_type', 'holidays_tour_travel_style'));
 
@@ -276,6 +343,9 @@ const statusInactiveValue = 0;
 
 const tourList = ref<TourVO[]>([]);
 const buttonLoading = ref(false);
+const detailVisible = ref(false);
+const detailLoading = ref(false);
+const detailForm = ref<Partial<TourVO>>({});
 const { loading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 const total = ref(0);
@@ -366,6 +436,8 @@ const { dialog, resetForm: reset, openDialog, showDialog, closeDialog } = useFor
   initialFormData: initFormData
 });
 
+const hasDetailValue = (value: unknown) => value !== undefined && value !== null && value !== '';
+
 /** 查询线路管理列表 */
 const getList = async () => {
   await withLoading(async () => {
@@ -414,6 +486,25 @@ const handleUpdate = async (row?: Partial<TourVO>) => {
   showDialog('修改线路管理');
 };
 
+/** 详情按钮操作 */
+const handleDetail = async (row: Partial<TourVO>) => {
+  if (!row.id) {
+    return;
+  }
+  detailVisible.value = true;
+  detailLoading.value = true;
+  try {
+    const res = await getTour(row.id);
+    detailForm.value = res.data || {};
+  } finally {
+    detailLoading.value = false;
+  }
+};
+
+const handleDetailClosed = () => {
+  detailForm.value = {};
+};
+
 /** 提交按钮 */
 const submitForm = () => {
   tourFormRef.value?.validate(async (valid: boolean) => {
@@ -453,6 +544,16 @@ const handleStatusChange = async (row: Partial<TourVO>) => {
   }
 };
 
+
+/** 打开该线路的行程管理内页 */
+const handleItinerary = (row: Partial<TourVO>) => {
+  tab.openPage('/boxhilltravel_manager/tour_itinerary', '行程管理 - ' + row.name, { tourId: row.id, tourName: row.name });
+};
+
+/** 打开该线路的服务项管理内页 */
+const handleServiceItem = (row: Partial<TourVO>) => {
+  tab.openPage('/boxhilltravel_manager/tour_service_item', '服务项 - ' + row.name, { tourId: row.id, tourName: row.name });
+};
 
 onMounted(() => {
   getList();

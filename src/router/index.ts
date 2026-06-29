@@ -92,7 +92,50 @@ export const constantRoutes: RouteRecordRaw[] = [
 ];
 
 // 动态路由，基于用户权限动态去加载
-export const dynamicRoutes: RouteRecordRaw[] = [];
+export const dynamicRoutes: RouteRecordRaw[] = [
+  {
+    path: '/boxhilltravel_manager',
+    component: Layout,
+    hidden: true,
+    permissions: ['boxhilltravel_manager:tour_itinerary:list'],
+    children: [
+      {
+        path: 'tour_itinerary',
+        component: () => import('@/views/boxhilltravel_manager/tour_itinerary/index.vue'),
+        name: 'TourItinerary',
+        meta: { title: '行程管理', activeMenu: '/boxhilltravel_manager/tour', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/boxhilltravel_manager/tour_itinerary_activity',
+    component: Layout,
+    hidden: true,
+    permissions: ['boxhilltravel_manager:tour_itinerary_activity:list'],
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/boxhilltravel_manager/tour_itinerary_activity/index.vue'),
+        name: 'TourItineraryActivity',
+        meta: { title: '行程活动', activeMenu: '/boxhilltravel_manager/tour', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/boxhilltravel_manager/tour_service_item',
+    component: Layout,
+    hidden: true,
+    permissions: ['boxhilltravel_manager:tour_service_item:list'],
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/boxhilltravel_manager/tour_service_item/index.vue'),
+        name: 'TourServiceItem',
+        meta: { title: '线路服务项', activeMenu: '/boxhilltravel_manager/tour', noCache: true }
+      }
+    ]
+  }
+];
 
 /**
  * 创建路由
