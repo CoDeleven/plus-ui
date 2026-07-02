@@ -41,7 +41,7 @@ export interface OrderPaymentVO {
   paymentMethod: string;
   amount: number;
   currency: string;
-  status: string;
+  status: number;
   paidTime?: string;
 }
 
@@ -86,6 +86,6 @@ export interface OrderQuery extends PageQuery {
   orderNo?: string;
   customerKeyword?: string;
   tourName?: string;
-  status?: string;
+  status?: number;
   params?: any;
 }

@@ -217,11 +217,12 @@ import { parseTime } from '@/utils/ruoyi';
 const { holidays_currency_unit } = toRefs<any>(useDict('holidays_currency_unit'));
 
 const orderStatusOptions = [
-  { label: 'Pending payment', value: 'PENDING_PAYMENT' },
-  { label: 'Paid', value: 'PAID' },
-  { label: 'Confirmed', value: 'CONFIRMED' },
-  { label: 'Cancelled', value: 'CANCELLED' },
-  { label: 'Refunded', value: 'REFUNDED' }
+  { label: 'Pending payment', value: 0 },
+  { label: 'Paid', value: 1 },
+  { label: 'Confirmed', value: 2 },
+  { label: 'Completed', value: 3 },
+  { label: 'Cancelled', value: 4 },
+  { label: 'Refunded', value: 5 }
 ];
 
 const orderList = ref<OrderVO[]>([]);
@@ -240,7 +241,7 @@ const queryParams = ref<OrderQuery>({
   orderNo: '',
   customerKeyword: '',
   tourName: '',
-  status: '',
+  status: undefined,
   params: {}
 });
 
@@ -272,12 +273,12 @@ const handleView = async (row: OrderVO) => {
   detailVisible.value = true;
 };
 
-const orderStatusLabel = (status?: string) => orderStatusOptions.find(item => item.value === status)?.label || status || '-';
+const orderStatusLabel = (status?: number) => orderStatusOptions.find(item => item.value === status)?.label || '-';
 
-const statusTagType = (status?: string) => {
-  if (status === 'PENDING_PAYMENT') return 'warning';
-  if (status === 'PAID' || status === 'CONFIRMED') return 'success';
-  if (status === 'CANCELLED' || status === 'REFUNDED') return 'info';
+const statusTagType = (status?: number) => {
+  if (status === 0) return 'warning';
+  if (status === 1 || status === 2 || status === 3) return 'success';
+  if (status === 4 || status === 5) return 'info';
   return '';
 };
 
