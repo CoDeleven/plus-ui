@@ -36,6 +36,14 @@ export interface TourVO {
    */
   tripType: number;
   /**
+   * CollectionTag
+   */
+  collectionTag?: string;
+  /**
+   * 途径国家
+   */
+  countryNames?: string[];
+  /**
    * 最小年龄
    */
   minAge: number;
@@ -71,6 +79,14 @@ export interface TourVO {
    * ????
    */
   notes: string;
+  /**
+   * 最晚到达时间
+   */
+  latestArrivalTime?: string;
+  /**
+   * 最早离开时间
+   */
+  earliestDepartureTime?: string;
   /**
    * 状态 0草稿 1上架 2下架
    */
@@ -131,6 +147,10 @@ export interface TourForm extends BaseEntity {
    */
   tripType?: number;
   /**
+   * CollectionTag
+   */
+  collectionTag?: string;
+  /**
    * 最小年龄
    */
   minAge?: number;
@@ -158,6 +178,14 @@ export interface TourForm extends BaseEntity {
    * ????
    */
   notes?: string;
+  /**
+   * 最晚到达时间
+   */
+  latestArrivalTime?: string;
+  /**
+   * 最早离开时间
+   */
+  earliestDepartureTime?: string;
   /**
    * 状态 0草稿 1上架 2下架
    */
@@ -213,6 +241,10 @@ export interface TourQuery extends PageQuery {
    * 线路类型
    */
   tripType?: number;
+  /**
+   * 国家名称关键字
+   */
+  countryName?: string;
   /**
    * 最小年龄
    */

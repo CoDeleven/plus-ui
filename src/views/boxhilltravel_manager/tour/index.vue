@@ -14,6 +14,9 @@
             <el-form-item label="线路名称" prop="name">
               <el-input v-model="queryParams.name" placeholder="请输入线路名称" clearable @keyup.enter="handleQuery" />
             </el-form-item>
+            <el-form-item label="途径国家" prop="countryName">
+              <el-input v-model="queryParams.countryName" placeholder="请输入国家名称" clearable @keyup.enter="handleQuery" />
+            </el-form-item>
             <el-form-item label="旅行风格" prop="travelStyle">
               <el-select v-model="queryParams.travelStyle" placeholder="请选择旅行风格" clearable >
                 <el-option v-for="dict in holidays_tour_travel_style" :key="dict.value" :label="dict.label" :value="dict.value"/>
@@ -72,7 +75,6 @@
             <a class="text-blue-500 cursor-pointer hover:underline hover:text-blue-700" @click.prevent="handleItinerary(scope.row)">{{ scope.row.name }}</a>
           </template>
         </el-table-column>
-        <el-table-column label="描述" align="center" prop="description" :show-overflow-tooltip="true" />
         <el-table-column label="行程天数" align="center" prop="durationDays" />
         <el-table-column label="旅行风格" align="center" prop="travelStyle" min-width="100">
           <template #default="scope">
@@ -92,6 +94,34 @@
         <el-table-column label="线路类型" align="center" prop="tripType" min-width="120">
           <template #default="scope">
             <dict-tag :options="holidays_tour_trip_type" :value="scope.row.tripType"/>
+          </template>
+        </el-table-column>
+        <el-table-column label="CollectionTag" align="center" prop="collectionTag" min-width="120">
+          <template #default="scope">
+            <dict-tag :options="holidays_tour_collection" :value="scope.row.collectionTag"/>
+          </template>
+        </el-table-column>
+        <el-table-column label="途径国家" align="center" prop="countryNames" min-width="160">
+          <template #default="scope">
+            <el-tooltip
+              v-if="scope.row.countryNames?.length"
+              placement="top"
+              effect="dark"
+              popper-class="tour-country-tooltip"
+            >
+              <template #content>
+                <div class="tour-country-tooltip-content">
+                  <div v-for="country in scope.row.countryNames" :key="country">{{ country }}</div>
+                </div>
+              </template>
+              <span class="tour-country-summary">
+                <span>{{ scope.row.countryNames[0] }}</span>
+                <el-tag v-if="scope.row.countryNames.length > 1" size="small" class="tour-country-more">
+                  +{{ scope.row.countryNames.length - 1 }}
+                </el-tag>
+              </span>
+            </el-tooltip>
+            <span v-else>-</span>
           </template>
         </el-table-column>
         <el-table-column label="最小年龄" align="center" prop="minAge" />
@@ -130,6 +160,9 @@
             <el-tooltip content="服务项" placement="top">
               <el-button link type="primary" icon="Tickets" @click="handleServiceItem(scope.row)"></el-button>
             </el-tooltip>
+            <el-tooltip content="团期" placement="top">
+              <el-button link type="primary" icon="Calendar" @click="handleDeparture(scope.row)"></el-button>
+            </el-tooltip>
             <el-tooltip content="修改" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['boxhilltravel_manager:tour:edit']"></el-button>
             </el-tooltip>
@@ -143,8 +176,8 @@
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
     <!-- 添加或修改线路管理对话框 -->
-    <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
-      <el-form ref="tourFormRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="dialog.title" v-model="dialog.visible" width="750px" append-to-body>
+      <el-form ref="tourFormRef" :model="form" :rules="rules" label-width="120px">
         <el-form-item label="线路代码(唯一)" prop="code">
           <el-input v-model="form.code" placeholder="请输入线路代码(唯一)" />
         </el-form-item>
@@ -197,6 +230,16 @@
             ></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="Tag" prop="collectionTag">
+          <el-select v-model="form.collectionTag" placeholder="Select CollectionTag" clearable>
+            <el-option
+                v-for="dict in holidays_tour_collection"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+            ></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="最小年龄" prop="minAge">
           <el-input-number v-model="form.minAge" controls-position="right" />
         </el-form-item>
@@ -224,6 +267,20 @@
         </el-form-item>
         <el-form-item label="notes" prop="notes">
             <el-input v-model="form.notes" type="textarea" placeholder="请输入内容" />
+        </el-form-item>
+        <el-form-item label="最晚到达时间" prop="latestArrivalTime">
+          <el-time-picker
+            v-model="form.latestArrivalTime"
+            value-format="HH:mm:ss"
+            placeholder="请选择最晚到达时间"
+          />
+        </el-form-item>
+        <el-form-item label="最早离开时间" prop="earliestDepartureTime">
+          <el-time-picker
+            v-model="form.earliestDepartureTime"
+            value-format="HH:mm:ss"
+            placeholder="请选择最早离开时间"
+          />
         </el-form-item>
         <el-form-item label="上架状态" prop="status">
           <el-switch
@@ -281,6 +338,13 @@
           <dict-tag v-if="hasDetailValue(detailForm.tripType)" :options="holidays_tour_trip_type" :value="detailForm.tripType"/>
           <span v-else>-</span>
         </el-descriptions-item>
+        <el-descriptions-item label="CollectionTag">
+          <dict-tag v-if="hasDetailValue(detailForm.collectionTag)" :options="holidays_tour_collection" :value="detailForm.collectionTag"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item label="途径国家" :span="2">
+          {{ detailForm.countryNames?.length ? detailForm.countryNames.join(' / ') : '-' }}
+        </el-descriptions-item>
         <el-descriptions-item label="基础价格">{{ detailForm.basePrice ?? '-' }}</el-descriptions-item>
         <el-descriptions-item label="销售价格">{{ detailForm.salePrice ?? '-' }}</el-descriptions-item>
         <el-descriptions-item label="货币">
@@ -302,6 +366,8 @@
         </el-descriptions-item>
         <el-descriptions-item label="描述" :span="2">{{ detailForm.description || '-' }}</el-descriptions-item>
         <el-descriptions-item label="notes" :span="2">{{ detailForm.notes || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="最晚到达时间">{{ detailForm.latestArrivalTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="最早离开时间">{{ detailForm.earliestDepartureTime || '-' }}</el-descriptions-item>
         <el-descriptions-item label="SEO标题" :span="2">{{ detailForm.seoTitle || '-' }}</el-descriptions-item>
         <el-descriptions-item label="SEO描述" :span="2">{{ detailForm.seoDescription || '-' }}</el-descriptions-item>
         <el-descriptions-item label="SEO关键词" :span="2">{{ detailForm.seoKeywords || '-' }}</el-descriptions-item>
@@ -336,7 +402,7 @@ import { parseTime } from '@/utils/ruoyi';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
 
-const { holidays_currency_unit, holidays_tour_physical_rating, holidays_tour_service_level, holidays_tour_trip_type, holidays_tour_travel_style } = toRefs<any>(useDict('holidays_currency_unit', 'holidays_tour_physical_rating', 'holidays_tour_service_level', 'holidays_tour_trip_type', 'holidays_tour_travel_style'));
+const { holidays_currency_unit, holidays_tour_collection, holidays_tour_physical_rating, holidays_tour_service_level, holidays_tour_trip_type, holidays_tour_travel_style } = toRefs<any>(useDict('holidays_currency_unit', 'holidays_tour_collection', 'holidays_tour_physical_rating', 'holidays_tour_service_level', 'holidays_tour_trip_type', 'holidays_tour_travel_style'));
 
 const statusActiveValue = 1;
 const statusInactiveValue = 0;
@@ -363,6 +429,7 @@ const initFormData: TourForm = {
   serviceLevel: undefined,
   physicalRating: undefined,
   tripType: undefined,
+  collectionTag: undefined,
   minAge: undefined,
   basePrice: undefined,
   salePrice: undefined,
@@ -370,6 +437,8 @@ const initFormData: TourForm = {
   coverImage: undefined,
   mapImage: undefined,
   notes: undefined,
+  latestArrivalTime: undefined,
+  earliestDepartureTime: undefined,
   status: undefined,
   seoTitle: undefined,
   seoDescription: undefined,
@@ -383,6 +452,7 @@ const data = reactive<PageData<TourForm, TourQuery>>({
     pageSize: 10,
     code: undefined,
     name: undefined,
+    countryName: undefined,
     travelStyle: undefined,
     serviceLevel: undefined,
     physicalRating: undefined,
@@ -555,8 +625,33 @@ const handleServiceItem = (row: Partial<TourVO>) => {
   tab.openPage('/boxhilltravel_manager/tour_service_item', '服务项 - ' + row.name, { tourId: row.id, tourName: row.name });
 };
 
+/** 打开该线路的团期管理内页 */
+const handleDeparture = (row: Partial<TourVO>) => {
+  tab.openPage('/boxhilltravel_manager/departure', '团期管理 - ' + row.name, { tourId: row.id, tourName: row.name });
+};
+
 onMounted(() => {
   getList();
 });
 </script>
 
+<style scoped>
+.tour-country-summary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.tour-country-more {
+  flex-shrink: 0;
+}
+</style>
+
+<style>
+.tour-country-tooltip-content {
+  line-height: 1.8;
+  white-space: nowrap;
+}
+</style>

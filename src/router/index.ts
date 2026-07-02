@@ -134,6 +134,20 @@ export const dynamicRoutes: RouteRecordRaw[] = [
         meta: { title: '线路服务项', activeMenu: '/boxhilltravel_manager/tour', noCache: true }
       }
     ]
+  },
+  {
+    path: '/boxhilltravel_manager/departure',
+    component: Layout,
+    hidden: true,
+    permissions: ['boxhilltravel_manager:departure:list'],
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/boxhilltravel_manager/departure/index.vue'),
+        name: 'Departure',
+        meta: { title: '团期管理', activeMenu: '/boxhilltravel_manager/tour', noCache: true }
+      }
+    ]
   }
 ];
 
