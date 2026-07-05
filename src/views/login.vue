@@ -1,25 +1,6 @@
 <template>
   <div class="login">
     <div class="login-shell">
-      <section class="login-brand">
-        <span class="brand-pill">Plus UI Workspace</span>
-        <h1 class="brand-title">企业级后台管理系统</h1>
-        <p class="brand-desc">
-          真正面向企业级的应用框架 组件化 模块化 轻耦合 高扩展 针对企业痛点 业界一流技术栈
-          <br />
-          重写 RuoYi-Vue 所有功能 集成 Sa-Token、Mybatis-Plus、WarmFlow、SpringDoc、Hutool、OSS 定期同步。
-        </p>
-        <div class="brand-highlights">
-          <span v-for="item in highlights" :key="item" class="highlight-chip">{{ item }}</span>
-        </div>
-        <div class="brand-metrics">
-          <article v-for="item in quickStats" :key="item.label" class="metric-card">
-            <strong>{{ item.value }}</strong>
-            <span>{{ item.label }}</span>
-          </article>
-        </div>
-      </section>
-
       <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
         <div class="title-box">
           <div>
@@ -77,7 +58,7 @@
           </router-link>
         </div>
 
-        <div class="social-panel">
+        <!-- <div class="social-panel">
           <span class="social-label">第三方登录</span>
           <div class="social-actions">
             <el-button circle :title="$t('login.social.wechat')" @click="doSocialLogin('wechat')">
@@ -96,7 +77,7 @@
               <svg-icon icon-class="github" />
             </el-button>
           </div>
-        </div>
+        </div> -->
 
         <el-form-item class="submit-row">
           <el-button :loading="loading" size="large" type="primary" class="submit-button" @click.prevent="handleLogin">
@@ -264,7 +245,8 @@ onMounted(() => {
 .login-shell {
   width: min(1180px, 100%);
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(360px, 440px);
+  grid-template-columns: minmax(360px, 440px);
+  justify-content: center;
   gap: 26px;
   align-items: stretch;
 }
