@@ -64,10 +64,17 @@
             :data="destinationOptions"
             :props="destinationTreeProps as any"
             value-key="id"
+            node-key="id"
             placeholder="请选择起始destination"
             check-strictly
             filterable
+            remote
+            :remote-method="remoteSearchDestinationTree"
+            :loading="destinationSearching"
             clearable
+            lazy
+            :load="loadDestinationOptions"
+            :cache-data="destinationCacheOptions"
           />
         </el-form-item>
         <el-form-item label="结束destination" prop="toDestinationId">
@@ -76,10 +83,17 @@
             :data="destinationOptions"
             :props="destinationTreeProps as any"
             value-key="id"
+            node-key="id"
             placeholder="请选择结束destination"
             check-strictly
             filterable
+            remote
+            :remote-method="remoteSearchDestinationTree"
+            :loading="destinationSearching"
             clearable
+            lazy
+            :load="loadDestinationOptions"
+            :cache-data="destinationCacheOptions"
           />
         </el-form-item>
         <el-form-item label="餐食 B/L/D" prop="meals">
@@ -104,6 +118,7 @@
 </template>
 
 <script setup name="Tour_itinerary" lang="ts">
+import type { LoadFunction } from 'element-plus';
 import {
   addTour_itinerary,
   delTour_itinerary,
@@ -111,8 +126,8 @@ import {
   listTour_itinerary,
   updateTour_itinerary
 } from '@/api/boxhilltravel_manager/tour_itinerary';
-import { listDestinationTree } from '@/api/boxhilltravel_manager/destination';
-import type { DestinationTreeOption } from '@/api/boxhilltravel_manager/destination/types';
+import { getDestination, listDestination, listDestinationTree } from '@/api/boxhilltravel_manager/destination';
+import type { DestinationTreeOption, DestinationVO } from '@/api/boxhilltravel_manager/destination/types';
 import { Tour_itineraryForm, Tour_itineraryQuery, Tour_itineraryVO } from '@/api/boxhilltravel_manager/tour_itinerary/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useFormDialog } from '@/hooks/dialog/useFormDialog';
@@ -134,8 +149,17 @@ const buttonLoading = ref(false);
 const { loading, withLoading } = useLoading(true);
 const total = ref(0);
 const selectedMeals = ref<string[]>([]);
-const destinationOptions = ref<DestinationTreeOption[]>([]);
-const destinationTreeProps = { value: 'id', label: 'label', children: 'children' };
+type DestinationOption = {
+  id: string | number;
+  label: string;
+  children?: DestinationOption[];
+  isLeaf?: boolean;
+};
+const destinationOptions = ref<DestinationOption[]>([]);
+const destinationCacheOptions = ref<DestinationOption[]>([]);
+const destinationSearching = ref(false);
+const destinationSearchTimer = ref<ReturnType<typeof setTimeout>>();
+const destinationTreeProps = { value: 'id', label: 'label', children: 'children', isLeaf: 'isLeaf' };
 
 const tour_itineraryFormRef = ref<ElFormInstance>();
 
@@ -201,9 +225,85 @@ const parseMealValues = (meals?: string | Array<string | number> | null): string
 
 const stringifyMealValues = (meals: string[]) => JSON.stringify(meals);
 
-const loadDestinationOptions = async () => {
-  const res = await listDestinationTree();
-  destinationOptions.value = res.data ?? [];
+const hasChildLayer = (row: Pick<DestinationVO, 'level'> | Pick<DestinationTreeOption, 'level'>) => row.level == null || Number(row.level) < 3;
+
+const getDestinationLabel = (row: Partial<DestinationVO>) => row.nameEn || row.name || String(row.id);
+
+const toDestinationOption = (row: DestinationVO): DestinationOption => ({
+  id: row.id,
+  label: getDestinationLabel(row),
+  isLeaf: !hasChildLayer(row)
+});
+
+const toDestinationTreeOption = (row: DestinationTreeOption): DestinationOption => ({
+  id: row.id,
+  label: row.label || row.nameEn || row.name || String(row.id),
+  isLeaf: !hasChildLayer(row),
+  children: row.children?.map(toDestinationTreeOption)
+});
+
+const getDestinationChildren = async (parentId: string | number) => {
+  const res = await listDestination({
+    parentId,
+    pageNum: 1,
+    pageSize: 10000
+  });
+  return (res.data?.rows || []).map(toDestinationOption);
+};
+
+const loadRootDestinationOptions = async () => {
+  destinationOptions.value = await getDestinationChildren(0);
+};
+
+const remoteSearchDestinationTree = (keyword: string) => {
+  if (destinationSearchTimer.value) {
+    clearTimeout(destinationSearchTimer.value);
+  }
+
+  const searchText = keyword.trim();
+  if (!searchText) {
+    loadRootDestinationOptions();
+    return;
+  }
+
+  destinationSearchTimer.value = setTimeout(async () => {
+    destinationSearching.value = true;
+    try {
+      const res = await listDestinationTree({
+        nameEn: searchText,
+        pageNum: 1,
+        pageSize: 10000
+      });
+      destinationOptions.value = (res.data || []).map(toDestinationTreeOption);
+    } finally {
+      destinationSearching.value = false;
+    }
+  }, 300);
+};
+
+const loadDestinationOptions: LoadFunction = async (node, resolve) => {
+  if (node.level === 0) {
+    resolve(destinationOptions.value);
+    return;
+  }
+
+  const current = node.data as DestinationOption | undefined;
+  if (!current || current.isLeaf) {
+    resolve([]);
+    return;
+  }
+
+  resolve(await getDestinationChildren(current.id));
+};
+
+const cacheDestinationOptionsByIds = async (...ids: Array<string | number | undefined>) => {
+  const uniqueIds = Array.from(new Set(ids.filter(Boolean))) as Array<string | number>;
+  if (!uniqueIds.length) {
+    destinationCacheOptions.value = [];
+    return;
+  }
+  const rows = await Promise.all(uniqueIds.map(id => getDestination(id).then(res => res.data)));
+  destinationCacheOptions.value = rows.filter(Boolean).map(toDestinationOption);
 };
 
 /** 查询行程列表 */
@@ -228,6 +328,7 @@ const cancel = () => {
 const handleAdd = () => {
   openDialog('添加行程');
   selectedMeals.value = [];
+  destinationCacheOptions.value = [];
   // openDialog 内部会 resetForm 清空 tourId，此处回填当前线路
   form.value.tourId = tourId.value;
 };
@@ -239,6 +340,7 @@ const handleUpdate = async (row?: Partial<Tour_itineraryVO>) => {
   const res = await getTour_itinerary(_id);
   Object.assign(form.value, res.data);
   selectedMeals.value = parseMealValues(res.data?.meals);
+  await cacheDestinationOptionsByIds(res.data?.fromDestinationId, res.data?.toDestinationId);
   showDialog('修改行程');
 };
 
@@ -288,6 +390,12 @@ const handleBack = () => {
 
 onMounted(() => {
   getList();
-  loadDestinationOptions();
+  loadRootDestinationOptions();
+});
+
+onBeforeUnmount(() => {
+  if (destinationSearchTimer.value) {
+    clearTimeout(destinationSearchTimer.value);
+  }
 });
 </script>
