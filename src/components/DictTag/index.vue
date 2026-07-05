@@ -42,7 +42,7 @@
 <script setup lang="ts">
 interface Props {
   options: Array<DictDataOption>;
-  value: number | string | Array<number | string>;
+  value: number | string | Array<number | string> | null | undefined;
   showValue?: boolean;
   separator?: string;
 }
