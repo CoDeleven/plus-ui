@@ -35,7 +35,8 @@ export default defineConfig(({ mode, command }) => {
           ws: true,
           rewrite: path => path.replace(new RegExp('^' + env.VITE_APP_BASE_API), '')
         }
-      }
+      },
+      allowedHosts: ['admin11335.boxhilltravel.com']
     },
     css: {
       preprocessorOptions: {
