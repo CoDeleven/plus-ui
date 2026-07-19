@@ -83,10 +83,19 @@
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Action" align="center" width="90" fixed="right">
+        <el-table-column label="Action" align="center" width="150" fixed="right">
           <template #default="scope">
             <el-tooltip content="View" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:order:query']" link type="primary" icon="View" @click="handleView(scope.row)" />
+            </el-tooltip>
+            <el-tooltip v-if="canMarkCompleted(scope.row.status)" content="Mark traveled" placement="top">
+              <el-button
+                v-hasPermi="['boxhilltravel_manager:order:edit']"
+                link
+                type="success"
+                icon="Finished"
+                @click="handleMarkCompleted(scope.row)"
+              />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -205,8 +214,10 @@
 </template>
 
 <script setup name="Order" lang="ts">
-import { getOrder, listOrder } from '@/api/boxhilltravel_manager/order';
+import type { TagProps } from 'element-plus';
+import { getOrder, listOrder, markOrderCompleted } from '@/api/boxhilltravel_manager/order';
 import type { OrderQuery, OrderTravelerVO, OrderVO } from '@/api/boxhilltravel_manager/order/types';
+import modal from '@/plugins/modal';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useDateRangeQuery } from '@/hooks/form/useDateRangeQuery';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
@@ -216,11 +227,15 @@ import { parseTime } from '@/utils/ruoyi';
 
 const { holidays_currency_unit } = toRefs<any>(useDict('holidays_currency_unit'));
 
+const ORDER_STATUS_PAID = 1;
+const ORDER_STATUS_CONFIRMED = 2;
+const ORDER_STATUS_COMPLETED = 3;
+
 const orderStatusOptions = [
   { label: 'Pending payment', value: 0 },
-  { label: 'Paid', value: 1 },
-  { label: 'Confirmed', value: 2 },
-  { label: 'Completed', value: 3 },
+  { label: 'Paid', value: ORDER_STATUS_PAID },
+  { label: 'Confirmed', value: ORDER_STATUS_CONFIRMED },
+  { label: 'Completed', value: ORDER_STATUS_COMPLETED },
   { label: 'Cancelled', value: 4 },
   { label: 'Refunded', value: 5 }
 ];
@@ -266,20 +281,34 @@ const { resetQuery } = useSearchReset({
   afterReset: handleQuery
 });
 
-const handleView = async (row: OrderVO) => {
+const handleView = async (row: OrderVO | any) => {
   const res = await getOrder(row.id);
   detail.value = res.data;
   selectedTraveler.value = detail.value.travelers?.[0];
   detailVisible.value = true;
 };
 
+const canMarkCompleted = (status?: number) => status === ORDER_STATUS_PAID || status === ORDER_STATUS_CONFIRMED;
+
+const handleMarkCompleted = async (row: OrderVO | any) => {
+  await modal.confirm(`Confirm marking order "${row.orderNo}" as traveled?`);
+  await markOrderCompleted(row.id);
+  modal.msgSuccess('Marked as traveled');
+  await getList();
+  if (detailVisible.value && detail.value?.id === row.id) {
+    const res = await getOrder(row.id);
+    detail.value = res.data;
+    selectedTraveler.value = detail.value.travelers?.[0];
+  }
+};
+
 const orderStatusLabel = (status?: number) => orderStatusOptions.find(item => item.value === status)?.label || '-';
 
-const statusTagType = (status?: number) => {
+const statusTagType = (status?: number): TagProps['type'] => {
   if (status === 0) return 'warning';
-  if (status === 1 || status === 2 || status === 3) return 'success';
+  if (status === ORDER_STATUS_PAID || status === ORDER_STATUS_CONFIRMED || status === ORDER_STATUS_COMPLETED) return 'success';
   if (status === 4 || status === 5) return 'info';
-  return '';
+  return undefined;
 };
 
 const resolveCurrencyCode = (currency?: string) => {

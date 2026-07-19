@@ -65,7 +65,7 @@ export interface OrderVO {
   extrasAmount: number;
   totalAmount: number;
   paidAmount: number;
-  status: string;
+  status: number;
   contactName?: string;
   contactEmail?: string;
   contactPhone?: string;

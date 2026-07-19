@@ -17,3 +17,10 @@ export const getOrder = (id: string | number): AxiosPromise<OrderVO> => {
     method: 'get'
   });
 };
+
+export const markOrderCompleted = (id: string | number): AxiosPromise<void> => {
+  return request({
+    url: '/boxhilltravel_manager/order/' + id + '/markCompleted',
+    method: 'put'
+  });
+};
