@@ -155,7 +155,14 @@ export const filterDynamicRoutes = (routes: RouteRecordRaw[]) => {
 };
 
 export const loadView = (view: any, name: string) => {
-  const loader = viewModuleMap.get(view);
+  const viewPath = view?.toString();
+  const candidates = [
+    viewPath,
+    `${viewPath}/index`,
+    viewPath?.replace('boxhilltravel-tours', 'boxhilltravel_manager'),
+    viewPath?.replace('boxhilltravel-tours', 'boxhilltravel_manager') + '/index'
+  ].filter(Boolean) as string[];
+  const loader = candidates.map(item => viewModuleMap.get(item)).find(Boolean);
   if (loader) {
     return createCustomNameComponent(loader, { name });
   }
