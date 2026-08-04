@@ -1,68 +1,80 @@
 export interface Faq_groupVO {
   /**
-   * 主键ID
+   * Primary key.
    */
   id: string | number;
   /**
-   * 分组名称
+   * FAQ module dictionary value.
+   */
+  module: number;
+  /**
+   * Group name.
    */
   groupName: string;
   /**
-   * 分组图标(emoji)
+   * Group icon or emoji.
    */
   icon: string;
   /**
-   * 排序
+   * Sort order.
    */
   sortOrder: number;
   /**
-   * 状态（1启用 0停用）
+   * Status: 1 enabled, 0 disabled.
    */
   status: string;
   /**
-   * 备注
+   * Remark.
    */
   remark: string;
 }
 
 export interface Faq_groupForm extends BaseEntity {
   /**
-   * 主键ID
+   * Primary key.
    */
   id?: string | number;
   /**
-   * 分组名称
+   * FAQ module dictionary value.
+   */
+  module?: number;
+  /**
+   * Group name.
    */
   groupName?: string;
   /**
-   * 分组图标(emoji)
+   * Group icon or emoji.
    */
   icon?: string;
   /**
-   * 排序
+   * Sort order.
    */
   sortOrder?: number;
   /**
-   * 状态（1启用 0停用）
+   * Status: 1 enabled, 0 disabled.
    */
   status?: string;
   /**
-   * 备注
+   * Remark.
    */
   remark?: string;
 }
 
 export interface Faq_groupQuery extends PageQuery {
   /**
-   * 分组名称
+   * FAQ module dictionary value.
+   */
+  module?: number;
+  /**
+   * Group name.
    */
   groupName?: string;
   /**
-   * 状态（1启用 0停用）
+   * Status: 1 enabled, 0 disabled.
    */
   status?: string;
   /**
-   * 日期范围参数
+   * Date range params.
    */
   params?: any;
 }

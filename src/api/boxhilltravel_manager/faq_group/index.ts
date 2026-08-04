@@ -20,10 +20,11 @@ export const listFaq_group = (query?: Faq_groupQuery): AxiosPromise<PageResult<F
 /**
  * 查询启用FAQ分组列表
  */
-export const listEnabledFaq_group = (): AxiosPromise<Faq_groupVO[]> => {
+export const listEnabledFaq_group = (module?: number): AxiosPromise<Faq_groupVO[]> => {
   return request({
     url: '/boxhilltravel_manager/faq_group/enabledList',
-    method: 'get'
+    method: 'get',
+    params: { module }
   });
 };
 

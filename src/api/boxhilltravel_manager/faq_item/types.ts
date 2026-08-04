@@ -1,84 +1,96 @@
 export interface Faq_itemVO {
   /**
-   * 主键ID
+   * Primary key.
    */
   id: string | number;
   /**
-   * 分组ID
+   * Group ID.
    */
   groupId: string | number;
   /**
-   * 分组名称
+   * Group name.
    */
   groupName: string;
   /**
-   * 问题
+   * FAQ module dictionary value.
+   */
+  module: number;
+  /**
+   * Question.
    */
   question: string;
   /**
-   * 答案(支持HTML)
+   * Answer, HTML supported.
    */
   answer: string;
   /**
-   * 排序
+   * Sort order.
    */
   sortOrder: number;
   /**
-   * 状态（1启用 0停用）
+   * Status: 1 enabled, 0 disabled.
    */
   status: string;
   /**
-   * 备注
+   * Remark.
    */
   remark: string;
 }
 
 export interface Faq_itemForm extends BaseEntity {
   /**
-   * 主键ID
+   * Primary key.
    */
   id?: string | number;
   /**
-   * 分组ID
+   * FAQ module dictionary value.
+   */
+  module?: number;
+  /**
+   * Group ID.
    */
   groupId?: string | number;
   /**
-   * 问题
+   * Question.
    */
   question?: string;
   /**
-   * 答案(支持HTML)
+   * Answer, HTML supported.
    */
   answer?: string;
   /**
-   * 排序
+   * Sort order.
    */
   sortOrder?: number;
   /**
-   * 状态（1启用 0停用）
+   * Status: 1 enabled, 0 disabled.
    */
   status?: string;
   /**
-   * 备注
+   * Remark.
    */
   remark?: string;
 }
 
 export interface Faq_itemQuery extends PageQuery {
   /**
-   * 分组ID
+   * FAQ module dictionary value.
+   */
+  module?: number;
+  /**
+   * Group ID.
    */
   groupId?: string | number;
   /**
-   * 问题
+   * Question.
    */
   question?: string;
   /**
-   * 状态（1启用 0停用）
+   * Status: 1 enabled, 0 disabled.
    */
   status?: string;
   /**
-   * 日期范围参数
+   * Date range params.
    */
   params?: any;
 }
