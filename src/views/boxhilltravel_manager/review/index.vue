@@ -180,6 +180,15 @@
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
+        <el-form-item label="Published At" prop="publishedAt">
+          <el-date-picker
+            v-model="form.publishedAt"
+            type="datetime"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            placeholder="Published time"
+            clearable
+          />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -248,6 +257,7 @@ const initFormData: ReviewForm = {
   status: 1,
   featured: 0,
   sortOrder: 0,
+  publishedAt: undefined,
   rejectReason: undefined
 };
 

@@ -34,6 +34,7 @@ export interface ReviewForm extends BaseEntity {
   status?: number;
   featured?: number;
   sortOrder?: number;
+  publishedAt?: string;
   rejectReason?: string;
 }
 

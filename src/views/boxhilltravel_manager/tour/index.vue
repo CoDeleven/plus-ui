@@ -127,6 +127,7 @@
         <el-table-column label="最小年龄" align="center" prop="minAge" />
         <el-table-column label="基础价格" align="center" prop="basePrice" />
         <el-table-column label="销售价格" align="center" prop="salePrice" />
+        <el-table-column label="Single Supplement" align="center" prop="singleSupplement" min-width="150" />
         <el-table-column label="货币" align="center" prop="currency">
           <template #default="scope">
             <dict-tag :options="holidays_currency_unit" :value="scope.row.currency"/>
@@ -177,7 +178,7 @@
     </el-card>
     <!-- 添加或修改线路管理对话框 -->
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="750px" append-to-body>
-      <el-form ref="tourFormRef" :model="form" :rules="rules" label-width="120px">
+      <el-form ref="tourFormRef" :model="form" :rules="rules" label-width="180px">
         <el-form-item label="线路代码(唯一)" prop="code">
           <el-input v-model="form.code" placeholder="请输入线路代码(唯一)" />
         </el-form-item>
@@ -249,6 +250,9 @@
         <el-form-item label="销售价格" prop="salePrice">
           <el-input-number v-model="form.salePrice" controls-position="right" />
         </el-form-item>
+        <el-form-item label="Single Supplement" prop="singleSupplement">
+          <el-input-number v-model="form.singleSupplement" controls-position="right" :min="0" :precision="2" :step="0.01" />
+        </el-form-item>
         <el-form-item label="货币" prop="currency">
           <el-select v-model="form.currency" placeholder="请选择货币">
             <el-option
@@ -315,8 +319,8 @@
       </template>
     </el-dialog>
 
-    <el-dialog title="线路详情" v-model="detailVisible" width="760px" append-to-body @closed="handleDetailClosed">
-      <el-descriptions v-loading="detailLoading" :column="2" border>
+    <el-dialog title="线路详情" v-model="detailVisible" width="720px" append-to-body @closed="handleDetailClosed">
+      <el-descriptions v-loading="detailLoading" class="tour-detail-descriptions" :column="2" border>
         <el-descriptions-item label="线路ID">{{ detailForm.id ?? '-' }}</el-descriptions-item>
         <el-descriptions-item label="线路代码">{{ detailForm.code || '-' }}</el-descriptions-item>
         <el-descriptions-item label="线路名称" :span="2">{{ detailForm.name || '-' }}</el-descriptions-item>
@@ -347,6 +351,7 @@
         </el-descriptions-item>
         <el-descriptions-item label="基础价格">{{ detailForm.basePrice ?? '-' }}</el-descriptions-item>
         <el-descriptions-item label="销售价格">{{ detailForm.salePrice ?? '-' }}</el-descriptions-item>
+        <el-descriptions-item label="Single Supplement">{{ detailForm.singleSupplement ?? '-' }}</el-descriptions-item>
         <el-descriptions-item label="货币">
           <dict-tag v-if="hasDetailValue(detailForm.currency)" :options="holidays_currency_unit" :value="detailForm.currency"/>
           <span v-else>-</span>
@@ -433,6 +438,7 @@ const initFormData: TourForm = {
   minAge: undefined,
   basePrice: undefined,
   salePrice: undefined,
+  singleSupplement: undefined,
   currency: undefined,
   coverImage: undefined,
   mapImage: undefined,
@@ -550,8 +556,8 @@ const handleAdd = () => {
 /** 修改按钮操作 */
 const handleUpdate = async (row?: Partial<TourVO>) => {
   reset();
-  const _id = row?.id || ids.value[0];
-  const res = await getTour(_id);
+  const selectedId = row?.id || ids.value[0];
+  const res = await getTour(selectedId);
   Object.assign(form.value, res.data);
   showDialog('修改线路管理');
 };
@@ -594,9 +600,9 @@ const submitForm = () => {
 
 /** 删除按钮操作 */
 const handleDelete = async (row?: Partial<TourVO>) => {
-  const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除线路管理编号为"' + _ids + '"的数据项？');
-  await delTour(_ids);
+  const selectedIds = row?.id || ids.value;
+  await modal.confirm('是否确认删除线路管理编号为"' + selectedIds + '"的数据项？');
+  await delTour(selectedIds);
   modal.msgSuccess('删除成功');
   await getList();
 };
@@ -646,6 +652,11 @@ onMounted(() => {
 
 .tour-country-more {
   flex-shrink: 0;
+}
+
+.tour-detail-descriptions :deep(.el-descriptions__label) {
+  width: 120px !important;
+  min-width: 120px;
 }
 </style>
 

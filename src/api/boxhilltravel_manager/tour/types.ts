@@ -56,6 +56,10 @@ export interface TourVO {
    */
   salePrice: number;
   /**
+   * Single Supplement
+   */
+  singleSupplement?: number;
+  /**
    * 货币
    */
   currency: string;
@@ -163,6 +167,10 @@ export interface TourForm extends BaseEntity {
    */
   salePrice?: number;
   /**
+   * Single Supplement
+   */
+  singleSupplement?: number;
+  /**
    * 货币
    */
   currency?: string;
@@ -257,6 +265,10 @@ export interface TourQuery extends PageQuery {
    * 销售价格
    */
   salePrice?: number;
+  /**
+   * Single Supplement
+   */
+  singleSupplement?: number;
   /**
    * 货币
    */
