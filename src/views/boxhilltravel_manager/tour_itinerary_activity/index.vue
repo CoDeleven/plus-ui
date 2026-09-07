@@ -4,16 +4,16 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>筛选条件</h3></div>
+            <div><h3>{{ bt('filters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-            <el-form-item label="标题" prop="title">
-              <el-input v-model="queryParams.title" placeholder="请输入标题" clearable @keyup.enter="handleQuery" />
+            <el-form-item :label="bt('title')" prop="title">
+              <el-input v-model="queryParams.title" :placeholder="bt('enterTitle')" clearable @keyup.enter="handleQuery" />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-              <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+              <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+              <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
             </el-form-item>
         </el-form>
       </el-card>
@@ -23,12 +23,12 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>行程活动列表</h3>
+            <h3>{{ bt('activityList') }}</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:add']">新增</el-button>
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:edit']">修改</el-button>
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:remove']">删除</el-button>
+            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:add']">{{ bt('add') }}</el-button>
+            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:edit']">{{ bt('edit') }}</el-button>
+            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:remove']">{{ bt('delete') }}</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -36,9 +36,9 @@
 
       <el-table v-loading="loading" border class="data-table" :data="tour_itinerary_activityList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="标题" align="center" prop="title" />
-        <el-table-column label="描述" align="center" prop="description" :show-overflow-tooltip="true" />
-        <el-table-column label="活动图标" align="center" prop="activityIcon">
+        <el-table-column :label="bt('title')" align="center" prop="title" />
+        <el-table-column :label="bt('description')" align="center" prop="description" :show-overflow-tooltip="true" />
+        <el-table-column :label="bt('activityIcon')" align="center" prop="activityIcon">
           <template #default="scope">
             <el-tooltip v-if="scope.row.activityIcon" :content="scope.row.activityIcon" placement="top">
               <svg-icon :icon-class="scope.row.activityIcon" />
@@ -46,7 +46,7 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="副标签列表" align="center" prop="subtitle">
+        <el-table-column :label="bt('subtitles')" align="center" prop="subtitle">
           <template #default="scope">
             <div v-if="parseSubtitleValues(scope.row.subtitle).length" class="subtitle-tags">
               <el-tag v-for="subtitle in parseSubtitleValues(scope.row.subtitle)" :key="subtitle" type="info">
@@ -56,8 +56,8 @@
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="排序" align="center" prop="sortOrder" />
-        <el-table-column label="是否在预览时展示" align="center" prop="showInPreview">
+        <el-table-column :label="bt('sortOrder')" align="center" prop="sortOrder" />
+        <el-table-column :label="bt('showInPreview')" align="center" prop="showInPreview">
           <template #default="scope">
             <el-switch
               v-model="scope.row.showInPreview"
@@ -67,12 +67,12 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" :min-width="200">
+        <el-table-column :label="bt('actions')" align="center" class-name="small-padding fixed-width" :min-width="200">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:edit']"></el-button>
             </el-tooltip>
-            <el-tooltip content="删除" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['boxhilltravel_manager:tour_itinerary_activity:remove']"></el-button>
             </el-tooltip>
           </template>
@@ -81,25 +81,25 @@
 
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
-    <!-- 添加或修改行程活动对话框 -->
+    
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body destroy-on-close @closed="handleDialogClosed">
       <el-form ref="tour_itinerary_activityFormRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="行程ID" prop="itineraryId">
+        <el-form-item :label="bt('itineraryId')" prop="itineraryId">
           <el-input v-model="form.itineraryId" disabled />
         </el-form-item>
-        <el-form-item label="线路ID" prop="tourId">
+        <el-form-item :label="bt('tourId')" prop="tourId">
           <el-input v-model="form.tourId" disabled />
         </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入标题" />
+        <el-form-item :label="bt('title')" prop="title">
+          <el-input v-model="form.title" :placeholder="bt('enterTitle')" />
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-            <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
+        <el-form-item :label="bt('description')" prop="description">
+            <el-input v-model="form.description" type="textarea" :placeholder="bt('enterContent')" />
         </el-form-item>
-        <el-form-item label="活动图标" prop="activityIcon">
+        <el-form-item :label="bt('activityIcon')" prop="activityIcon">
           <icon-select v-model="form.activityIcon" />
         </el-form-item>
-        <el-form-item label="副标签列表" prop="subtitle">
+        <el-form-item :label="bt('subtitles')" prop="subtitle">
           <el-select
             v-model="selectedSubtitles"
             multiple
@@ -108,14 +108,14 @@
             default-first-option
             collapse-tags
             collapse-tags-tooltip
-            placeholder="请输入副标签并回车"
+            :placeholder="bt('enterSubtitle')"
             style="width: 100%"
           />
         </el-form-item>
-        <el-form-item label="排序" prop="sortOrder">
+        <el-form-item :label="bt('sortOrder')" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" controls-position="right" />
         </el-form-item>
-        <el-form-item label="是否在预览时展示" prop="showInPreview">
+        <el-form-item :label="bt('showInPreview')" prop="showInPreview">
           <el-switch
             v-model="form.showInPreview"
             :active-value="1"
@@ -125,8 +125,8 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -134,8 +134,9 @@
 </template>
 
 <script setup name="Tour_itinerary_activity" lang="ts">
-import {
-  addTour_itinerary_activity,
+
+import { useBoxhillI18n } from '../useBoxhillI18n';
+import {  addTour_itinerary_activity,
   delTour_itinerary_activity,
   getTour_itinerary_activity,
   listTour_itinerary_activity,
@@ -149,6 +150,8 @@ import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { useRoute } from 'vue-router';
+
+const { bt } = useBoxhillI18n();
 
 
 const route = useRoute();
@@ -190,25 +193,25 @@ const data = reactive<PageData<Tour_itinerary_activityForm, Tour_itinerary_activ
   },
   rules: {
 id: [
-      { required: true, message: "不能为空", trigger: "change" }
+      { required: true, message: bt('required'), trigger: "change" }
     ],
 itineraryId: [
-      { required: true, message: "行程ID不能为空", trigger: "change" }
+      { required: true, message: bt('itineraryIdRequired'), trigger: "change" }
     ],
 tourId: [
-      { required: true, message: "线路ID不能为空", trigger: "change" }
+      { required: true, message: bt('tourIdRequired'), trigger: "change" }
     ],
 title: [
-      { required: true, message: "标题不能为空", trigger: "blur" }
+      { required: true, message: bt('titleRequired'), trigger: "blur" }
     ],
 description: [
-      { required: true, message: "描述不能为空", trigger: "blur" }
+      { required: true, message: bt('descriptionRequired'), trigger: "blur" }
     ],
 sortOrder: [
-      { required: true, message: "不能为空", trigger: "change" }
+      { required: true, message: bt('required'), trigger: "change" }
     ],
 showInPreview: [
-      { required: true, message: "是否在预览时展示：0不展示，1展示不能为空", trigger: "change" }
+      { required: true, message: bt('showInPreviewRequired'), trigger: "change" }
     ],
   }
 });
@@ -263,7 +266,7 @@ const resetSelectedSubtitles = () => {
   selectedSubtitles.value = [];
 };
 
-/** 查询行程活动列表 */
+
 const getList = async () => {
   await withLoading(async () => {
     lockItineraryParams();
@@ -278,7 +281,7 @@ const getList = async () => {
   });
 };
 
-/** 取消按钮 */
+
 const cancel = () => {
   reset();
   resetSelectedSubtitles();
@@ -289,7 +292,7 @@ const handleDialogClosed = () => {
   resetSelectedSubtitles();
 };
 
-/** 搜索按钮操作 */
+
 const handleQuery = () => {
   lockItineraryParams();
   queryParams.value.pageNum = 1;
@@ -310,18 +313,18 @@ const { resetQuery } = useSearchReset({
   }
 });
 
-/** 新增按钮操作 */
+
 const handleAdd = () => {
   if (!hasLockedItinerary.value) {
-    modal.msgWarning('请先从行程列表进入活动管理');
+    modal.msgWarning(bt('enterActivityFromItinerary'));
     return;
   }
-  openDialog('添加行程活动');
+  openDialog(bt('addActivity'));
   resetSelectedSubtitles();
   lockItineraryForm();
 };
 
-/** 修改按钮操作 */
+
 const handleUpdate = async (row?: Partial<Tour_itinerary_activityVO>) => {
   reset();
   const _id = row?.id || ids.value[0];
@@ -329,15 +332,15 @@ const handleUpdate = async (row?: Partial<Tour_itinerary_activityVO>) => {
   Object.assign(form.value, res.data);
   selectedSubtitles.value = parseSubtitleValues(res.data?.subtitle);
   lockItineraryForm();
-  showDialog('修改行程活动');
+  showDialog(bt('editActivity'));
 };
 
-/** 提交按钮 */
+
 const submitForm = () => {
   tour_itinerary_activityFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       if (!hasLockedItinerary.value) {
-        modal.msgWarning('请先从行程列表进入活动管理');
+        modal.msgWarning(bt('enterActivityFromItinerary'));
         return;
       }
       buttonLoading.value = true;
@@ -348,19 +351,19 @@ const submitForm = () => {
       } else {
         await addTour_itinerary_activity(form.value).finally(() => (buttonLoading.value = false));
       }
-      modal.msgSuccess('操作成功');
+      modal.msgSuccess(bt('operationSuccess'));
       closeDialog();
       await getList();
     }
   });
 };
 
-/** 删除按钮操作 */
+
 const handleDelete = async (row?: Partial<Tour_itinerary_activityVO>) => {
   const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除行程活动编号为"' + _ids + '"的数据项？');
+  await modal.confirm(bt('confirmDeleteActivity', { ids: _ids }));
   await delTour_itinerary_activity(_ids);
-  modal.msgSuccess('删除成功');
+  modal.msgSuccess(bt('deleteSuccess'));
   await getList();
 };
 

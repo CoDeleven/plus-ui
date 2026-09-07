@@ -4,16 +4,16 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>Filter</h3></div>
+            <div><h3>{{ bt('filters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-          <el-form-item label="Tour ID" prop="tourId">
-            <el-input v-model="queryParams.tourId" placeholder="Please enter tour ID" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="bt('tourId')" prop="tourId">
+            <el-input v-model="queryParams.tourId" :placeholder="bt('enterTourId')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">Search</el-button>
-            <el-button icon="Refresh" @click="resetQuery">Reset</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -23,12 +23,12 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>Hot Deal Tours</h3>
+            <h3>{{ bt('hotDealTours') }}</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:add']">Add Tours</el-button>
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:edit']">Edit Sort</el-button>
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:remove']">Delete</el-button>
+            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:add']">{{ bt('addTours') }}</el-button>
+            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:edit']">{{ bt('editSort') }}</el-button>
+            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:remove']">{{ bt('delete') }}</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -36,39 +36,39 @@
 
       <el-table v-loading="loading" border class="data-table" :data="hot_deal_tourList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="Sort Order" align="center" prop="sortOrder" width="110" />
-        <el-table-column label="Tour Code" align="center" min-width="140">
+        <el-table-column :label="bt('sortOrder')" align="center" prop="sortOrder" width="110" />
+        <el-table-column :label="bt('tourCode')" align="center" min-width="140">
           <template #default="scope">
             {{ scope.row.tour?.code || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="Tour Name" align="center" min-width="220" show-overflow-tooltip>
+        <el-table-column :label="bt('tourName')" align="center" min-width="220" show-overflow-tooltip>
           <template #default="scope">
             {{ scope.row.tour?.name || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="Cover" align="center" width="100">
+        <el-table-column :label="bt('cover')" align="center" width="100">
           <template #default="scope">
             <image-preview v-if="scope.row.tour?.coverImageUrl" :src="scope.row.tour.coverImageUrl" :width="50" :height="50" />
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="Days" align="center" width="90">
+        <el-table-column :label="bt('days')" align="center" width="90">
           <template #default="scope">
             {{ scope.row.tour?.durationDays ?? '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="Base Price" align="center" width="120">
+        <el-table-column :label="bt('basePrice')" align="center" width="120">
           <template #default="scope">
             {{ scope.row.tour?.basePrice ?? '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="Sale Price" align="center" width="120">
+        <el-table-column :label="bt('salePrice')" align="center" width="120">
           <template #default="scope">
             {{ scope.row.tour?.salePrice ?? '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="Status" align="center" width="130">
+        <el-table-column :label="bt('status')" align="center" width="130">
           <template #default="scope">
             <el-switch
               v-if="scope.row.tour"
@@ -76,20 +76,20 @@
               :active-value="statusPublishedValue"
               :inactive-value="statusUnpublishedValue"
               :loading="tourStatusLoadingIds.includes(String(scope.row.tour.id))"
-              active-text="On"
-              inactive-text="Off"
+              :active-text="bt('on')"
+              :inactive-text="bt('off')"
               inline-prompt
               @change="handleTourStatusChange(scope.row.tour)"
             />
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="Actions" align="center" class-name="small-padding fixed-width" width="120">
+        <el-table-column :label="bt('actions')" align="center" class-name="small-padding fixed-width" width="120">
           <template #default="scope">
-            <el-tooltip content="Edit Sort" placement="top">
+            <el-tooltip :content="bt('editSort')" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:edit']"></el-button>
             </el-tooltip>
-            <el-tooltip content="Delete" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['boxhilltravel-manager:hot_deal_tour:remove']"></el-button>
             </el-tooltip>
           </template>
@@ -99,17 +99,17 @@
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
 
-    <el-dialog title="Select Tours" v-model="tourSelectVisible" width="980px" append-to-body @closed="handleTourSelectClosed">
+    <el-dialog :title="bt('selectTours')" v-model="tourSelectVisible" width="980px" append-to-body @closed="handleTourSelectClosed">
       <el-form :model="tourSelectQuery" :inline="true" class="query-form">
-        <el-form-item label="Tour Code">
-          <el-input v-model="tourSelectQuery.code" placeholder="Please enter tour code" clearable @keyup.enter="handleTourSelectQuery" />
+        <el-form-item :label="bt('tourCode')">
+          <el-input v-model="tourSelectQuery.code" :placeholder="bt('enterTourCode')" clearable @keyup.enter="handleTourSelectQuery" />
         </el-form-item>
-        <el-form-item label="Tour Name">
-          <el-input v-model="tourSelectQuery.name" placeholder="Please enter tour name" clearable @keyup.enter="handleTourSelectQuery" />
+        <el-form-item :label="bt('tourName')">
+          <el-input v-model="tourSelectQuery.name" :placeholder="bt('enterTourName')" clearable @keyup.enter="handleTourSelectQuery" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleTourSelectQuery">Search</el-button>
-          <el-button icon="Refresh" @click="resetTourSelectQuery">Reset</el-button>
+          <el-button type="primary" icon="Search" @click="handleTourSelectQuery">{{ bt('search') }}</el-button>
+          <el-button icon="Refresh" @click="resetTourSelectQuery">{{ bt('reset') }}</el-button>
         </el-form-item>
       </el-form>
 
@@ -122,21 +122,21 @@
         @selection-change="handleTourSelectChange"
       >
         <el-table-column type="selection" width="55" align="center" :selectable="isTourSelectable" />
-        <el-table-column label="Tour Code" align="center" prop="code" min-width="140" />
-        <el-table-column label="Tour Name" align="center" prop="name" min-width="220" show-overflow-tooltip />
-        <el-table-column label="Cover" align="center" width="100">
+        <el-table-column :label="bt('tourCode')" align="center" prop="code" min-width="140" />
+        <el-table-column :label="bt('tourName')" align="center" prop="name" min-width="220" show-overflow-tooltip />
+        <el-table-column :label="bt('cover')" align="center" width="100">
           <template #default="scope">
             <image-preview v-if="scope.row.coverImageUrl" :src="scope.row.coverImageUrl" :width="50" :height="50" />
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="Days" align="center" prop="durationDays" width="90" />
-        <el-table-column label="Base Price" align="center" prop="basePrice" width="120" />
-        <el-table-column label="Sale Price" align="center" prop="salePrice" width="120" />
-        <el-table-column label="Status" align="center" width="110">
+        <el-table-column :label="bt('days')" align="center" prop="durationDays" width="90" />
+        <el-table-column :label="bt('basePrice')" align="center" prop="basePrice" width="120" />
+        <el-table-column :label="bt('salePrice')" align="center" prop="salePrice" width="120" />
+        <el-table-column :label="bt('status')" align="center" width="110">
           <template #default="scope">
             <el-tag :type="scope.row.status === statusPublishedValue ? 'success' : 'info'">
-              {{ scope.row.status === statusPublishedValue ? 'Published' : 'Unpublished' }}
+              {{ scope.row.status === statusPublishedValue ? bt('published') : bt('unpublished') }}
             </el-tag>
           </template>
         </el-table-column>
@@ -152,28 +152,28 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="tourAddLoading" type="primary" @click="confirmAddTours">Add Selected</el-button>
-          <el-button @click="tourSelectVisible = false">Cancel</el-button>
+          <el-button :loading="tourAddLoading" type="primary" @click="confirmAddTours">{{ bt('addSelected') }}</el-button>
+          <el-button @click="tourSelectVisible = false">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
 
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
       <el-form ref="hot_deal_tourFormRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="Tour Code">
+        <el-form-item :label="bt('tourCode')">
           <el-input :model-value="getFormTour()?.code || '-'" disabled />
         </el-form-item>
-        <el-form-item label="Tour Name">
+        <el-form-item :label="bt('tourName')">
           <el-input :model-value="getFormTour()?.name || '-'" disabled />
         </el-form-item>
-        <el-form-item label="Sort Order" prop="sortOrder">
+        <el-form-item :label="bt('sortOrder')" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" controls-position="right" :min="1" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">Confirm</el-button>
-          <el-button @click="cancel">Cancel</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -198,7 +198,9 @@ import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { parseTime } from '@/utils/ruoyi';
+import { useBoxhillI18n } from '../useBoxhillI18n';
 
+const { bt } = useBoxhillI18n();
 type HotDealTourRow = Hot_deal_tourVO & {
   tour?: TourVO;
 };
@@ -247,7 +249,7 @@ const data = reactive<PageData<Hot_deal_tourForm, Hot_deal_tourQuery>>({
     params: {}
   },
   rules: {
-    sortOrder: [{ required: true, message: 'Sort order is required', trigger: 'change' }]
+    sortOrder: [{ required: true, message: bt('sortRequired'), trigger: 'change' }]
   }
 });
 
@@ -401,7 +403,7 @@ const getNextSortOrder = () => {
 const confirmAddTours = async () => {
   const selected = selectedTours.value.filter(tour => !existingHotDealTourIds.value.has(String(tour.id)));
   if (!selected.length) {
-    modal.msgWarning('Please select tours that are not already in hot deals');
+    modal.msgWarning(bt('selectNewHotDealToursWarning'));
     return;
   }
 
@@ -415,7 +417,7 @@ const confirmAddTours = async () => {
       });
       nextSortOrder += 1;
     }
-    modal.msgSuccess('Added successfully');
+    modal.msgSuccess(bt('addSuccess'));
     tourSelectVisible.value = false;
     await getList();
   } finally {
@@ -433,7 +435,7 @@ const handleUpdate = async (row?: Partial<Hot_deal_tourVO>) => {
     const tourRes = await getTour(form.value.tourId);
     setTourInMap(tourRes.data);
   }
-  showDialog('Edit Hot Deal Tour');
+  showDialog(bt('editHotDealTour'));
 };
 
 /** Submit edit. */
@@ -442,7 +444,7 @@ const submitForm = () => {
     if (valid) {
       buttonLoading.value = true;
       await updateHot_deal_tour(form.value).finally(() => (buttonLoading.value = false));
-      modal.msgSuccess('Updated successfully');
+      modal.msgSuccess(bt('operationSuccess'));
       closeDialog();
       await getList();
     }
@@ -452,9 +454,9 @@ const submitForm = () => {
 /** Delete. */
 const handleDelete = async (row?: Partial<Hot_deal_tourVO>) => {
   const _ids = row?.id || ids.value;
-  await modal.confirm('Confirm deleting hot deal tour ID "' + _ids + '"?');
+  await modal.confirm(bt('confirmDeleteHotDealTour', { ids: _ids }));
   await delHot_deal_tour(_ids);
-  modal.msgSuccess('Deleted successfully');
+  modal.msgSuccess(bt('deleteSuccess'));
   await getList();
 };
 
@@ -470,13 +472,13 @@ const removeTourStatusLoading = (tourId: string) => {
 const handleTourStatusChange = async (tour: TourVO) => {
   const tourId = String(tour.id);
   const oldStatus = tourStatusSnapshot.value[tourId] ?? statusUnpublishedValue;
-  const text = tour.status === statusPublishedValue ? 'publish' : 'unpublish';
+  const text = tour.status === statusPublishedValue ? bt('publishAction') : bt('unpublishAction');
   addTourStatusLoading(tourId);
   try {
-    await modal.confirm('Confirm to ' + text + ' this tour?');
+    await modal.confirm(bt('confirmTourStatus', { action: text }));
     await changeTourStatus(tour.id, tour.status);
     tourStatusSnapshot.value[tourId] = tour.status;
-    modal.msgSuccess('Status updated successfully');
+    modal.msgSuccess(bt('statusUpdateSuccess'));
   } catch (err) {
     tour.status = oldStatus;
   } finally {

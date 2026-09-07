@@ -4,18 +4,18 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>筛选条件</h3></div>
+            <div><h3>{{ bt('filters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+          <el-form-item :label="bt('status')" prop="status">
+            <el-select v-model="queryParams.status" :placeholder="bt('selectStatus')" clearable>
               <el-option v-for="item in departureStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -25,12 +25,11 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>团期列表{{ lockedTourName ? ' - ' + lockedTourName : '' }}</h3>
+            <h3>{{ bt('departureList') }}{{ lockedTourName ? ' - ' + lockedTourName : '' }}</h3>
           </div>
           <div class="toolbar-actions">
             <el-button v-hasPermi="['boxhilltravel_manager:departure:add']" type="primary" plain icon="Plus" @click="handleAdd">
-              新增
-            </el-button>
+              {{ bt('add') }}</el-button>
             <el-button
               v-hasPermi="['boxhilltravel_manager:departure:edit']"
               type="success"
@@ -39,8 +38,7 @@
               :disabled="single"
               @click="handleUpdate()"
             >
-              修改
-            </el-button>
+              {{ bt('edit') }}</el-button>
             <el-button
               v-hasPermi="['boxhilltravel_manager:departure:remove']"
               type="danger"
@@ -49,8 +47,7 @@
               :disabled="multiple"
               @click="handleDelete()"
             >
-              删除
-            </el-button>
+              {{ bt('delete') }}</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -58,39 +55,39 @@
 
       <el-table v-loading="loading" border class="data-table" :data="departureList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="ID" align="center" prop="id" />
-        <el-table-column label="出发日期" align="center" prop="departureDate" width="180">
+        <el-table-column :label="bt('id')" align="center" prop="id" />
+        <el-table-column :label="bt('departureDate')" align="center" prop="departureDate" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.departureDate, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="返程日期" align="center" prop="returnDate" width="180">
+        <el-table-column :label="bt('returnDate')" align="center" prop="returnDate" width="180">
           <template #default="scope">
             <span>{{ parseTime(scope.row.returnDate, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="行程天数" align="center" prop="durationDays" />
-        <el-table-column label="团期类型" align="center" prop="departureType">
+        <el-table-column :label="bt('durationDays')" align="center" prop="durationDays" />
+        <el-table-column :label="bt('departureType')" align="center" prop="departureType">
           <template #default="scope">
             <span>{{ departureTypeLabel(scope.row.departureType) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="核载人数" align="center" prop="maxCapacity" />
-        <el-table-column label="最小成团人数" align="center" prop="minCapacity" />
-        <el-table-column label="已预订人数" align="center" prop="bookedCount" />
-        <el-table-column label="剩余名额" align="center" prop="availableCount" />
-        <el-table-column label="原价" align="center" prop="basePrice" />
-        <el-table-column label="售价" align="center" prop="salePrice" />
-        <el-table-column label="折扣率" align="center" prop="discountRate" />
-        <el-table-column label="状态" align="center" prop="status" width="120">
+        <el-table-column :label="bt('capacity')" align="center" prop="maxCapacity" />
+        <el-table-column :label="bt('minimumGroupSize')" align="center" prop="minCapacity" />
+        <el-table-column :label="bt('bookedSeats')" align="center" prop="bookedCount" />
+        <el-table-column :label="bt('remainingSeats')" align="center" prop="availableCount" />
+        <el-table-column :label="bt('originalPrice')" align="center" prop="basePrice" />
+        <el-table-column :label="bt('price')" align="center" prop="salePrice" />
+        <el-table-column :label="bt('discountRate')" align="center" prop="discountRate" />
+        <el-table-column :label="bt('status')" align="center" prop="status" width="120">
           <template #default="scope">
             <span>{{ departureStatusLabel(scope.row.status) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip />
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column :label="bt('remark')" align="center" prop="remark" show-overflow-tooltip />
+        <el-table-column :label="bt('actions')" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:departure:edit']"
                 link
@@ -99,7 +96,7 @@
                 @click="handleUpdate(scope.row)"
               />
             </el-tooltip>
-            <el-tooltip content="删除" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:departure:remove']"
                 link
@@ -123,60 +120,60 @@
 
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="750px" append-to-body>
       <el-form ref="departureFormRef" :model="form" :rules="rules" label-width="150px">
-        <el-form-item label="出发日期" prop="departureDate">
+        <el-form-item :label="bt('departureDate')" prop="departureDate">
           <el-date-picker
             v-model="form.departureDate"
             clearable
             type="date"
             value-format="YYYY-MM-DD"
-            placeholder="请选择出发日期"
+            :placeholder="bt('selectDepartureDate')"
           />
         </el-form-item>
-        <el-form-item label="返程日期" prop="returnDate">
+        <el-form-item :label="bt('returnDate')" prop="returnDate">
           <el-date-picker
             v-model="form.returnDate"
             clearable
             type="date"
             value-format="YYYY-MM-DD"
-            placeholder="请选择返程日期"
+            :placeholder="bt('selectReturnDate')"
           />
         </el-form-item>
-        <el-form-item label="行程天数" prop="durationDays">
+        <el-form-item :label="bt('durationDays')" prop="durationDays">
           <el-input-number v-model="form.durationDays" controls-position="right" />
         </el-form-item>
-        <el-form-item label="团期类型" prop="departureType">
-          <el-select v-model="form.departureType" placeholder="请选择团期类型">
+        <el-form-item :label="bt('departureType')" prop="departureType">
+          <el-select v-model="form.departureType" :placeholder="bt('selectDepartureType')">
             <el-option v-for="item in departureTypeOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="核载人数" prop="maxCapacity">
+        <el-form-item :label="bt('capacity')" prop="maxCapacity">
           <el-input-number v-model="form.maxCapacity" controls-position="right" />
         </el-form-item>
-        <el-form-item label="最小成团人数" prop="minCapacity">
+        <el-form-item :label="bt('minimumGroupSize')" prop="minCapacity">
           <el-input-number v-model="form.minCapacity" controls-position="right" />
         </el-form-item>
-        <el-form-item label="原价" prop="basePrice">
+        <el-form-item :label="bt('originalPrice')" prop="basePrice">
           <el-input-number v-model="form.basePrice" controls-position="right" />
         </el-form-item>
-        <el-form-item label="售价" prop="salePrice">
+        <el-form-item :label="bt('price')" prop="salePrice">
           <el-input-number v-model="form.salePrice" controls-position="right" />
         </el-form-item>
-        <el-form-item label="折扣率" prop="discountRate">
+        <el-form-item :label="bt('discountRate')" prop="discountRate">
           <span>{{ discountRateDisplay }}</span>
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="form.status" placeholder="请选择状态">
+        <el-form-item :label="bt('status')" prop="status">
+          <el-select v-model="form.status" :placeholder="bt('selectStatus')">
             <el-option v-for="item in departureStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入备注" />
+        <el-form-item :label="bt('remark')" prop="remark">
+          <el-input v-model="form.remark" type="textarea" :placeholder="bt('enterRemark')" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -184,6 +181,8 @@
 </template>
 
 <script setup name="Departure" lang="ts">
+
+import { useBoxhillI18n } from '../useBoxhillI18n';
 import {
   addDeparture,
   delDeparture,
@@ -201,6 +200,8 @@ import modal from '@/plugins/modal';
 import { parseTime } from '@/utils/ruoyi';
 import { useRoute } from 'vue-router';
 
+const { bt } = useBoxhillI18n();
+
 const route = useRoute();
 const lockedTourId = computed(() => {
   const tourId = route.query.tourId;
@@ -213,15 +214,15 @@ const lockedTourName = computed(() => {
 const hasLockedTour = computed(() => lockedTourId.value !== undefined && lockedTourId.value !== '');
 
 const departureTypeOptions = [
-  { label: '固定', value: 1 },
-  { label: '不固定', value: 2 }
+  { label: bt('fixed'), value: 1 },
+  { label: bt('flexible'), value: 2 }
 ];
 
 const departureStatusOptions = [
-  { label: '可预订', value: 1 },
-  { label: '已满', value: 2 },
-  { label: '已结束', value: 3 },
-  { label: '已取消', value: 4 }
+  { label: bt('available'), value: 1 },
+  { label: bt('full'), value: 2 },
+  { label: bt('ended'), value: 3 },
+  { label: bt('cancelled'), value: 4 }
 ];
 
 const departureTypeLabel = (value?: number) => departureTypeOptions.find(item => item.value === value)?.label || '-';
@@ -264,15 +265,15 @@ const data = reactive<PageData<DepartureForm, DepartureQuery>>({
     params: {}
   },
   rules: {
-    tourId: [{ required: true, message: '线路ID不能为空', trigger: 'change' }],
-    departureDate: [{ required: true, message: '出发日期不能为空', trigger: 'blur' }],
-    returnDate: [{ required: true, message: '返程日期不能为空', trigger: 'blur' }],
-    durationDays: [{ required: true, message: '行程天数不能为空', trigger: 'change' }],
-    departureType: [{ required: true, message: '团期类型不能为空', trigger: 'change' }],
-    maxCapacity: [{ required: true, message: '核载人数不能为空', trigger: 'change' }],
-    basePrice: [{ required: true, message: '原价不能为空', trigger: 'change' }],
-    salePrice: [{ required: true, message: '售价不能为空', trigger: 'change' }],
-    status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
+    tourId: [{ required: true, message: bt('tourIdRequired'), trigger: 'change' }],
+    departureDate: [{ required: true, message: bt('departureDateRequired'), trigger: 'blur' }],
+    returnDate: [{ required: true, message: bt('returnDateRequired'), trigger: 'blur' }],
+    durationDays: [{ required: true, message: bt('durationDaysRequired'), trigger: 'change' }],
+    departureType: [{ required: true, message: bt('departureTypeRequired'), trigger: 'change' }],
+    maxCapacity: [{ required: true, message: bt('capacityRequired'), trigger: 'change' }],
+    basePrice: [{ required: true, message: bt('originalPriceRequired'), trigger: 'change' }],
+    salePrice: [{ required: true, message: bt('priceRequired'), trigger: 'change' }],
+    status: [{ required: true, message: bt('text004'), trigger: 'change' }]
   }
 });
 
@@ -299,7 +300,7 @@ const lockTourForm = () => {
 };
 
 const warnNoLockedTour = () => {
-  modal.msgWarning('请先从线路列表进入团期管理');
+  modal.msgWarning(bt('enterDepartureFromTour'));
 };
 
 const refreshDiscountRate = () => {
@@ -365,7 +366,7 @@ const normalizeDateValue = (value: unknown) => {
   return parseTime(text, '{y}-{m}-{d}') || text;
 };
 
-/** 查询当前线路下的团期列表 */
+
 const getList = async () => {
   await withLoading(async () => {
     lockTourParams();
@@ -385,7 +386,7 @@ const cancel = () => {
   closeDialog();
 };
 
-/** 搜索按钮操作 */
+
 const handleQuery = () => {
   lockTourParams();
   queryParams.value.pageNum = 1;
@@ -406,17 +407,17 @@ const { resetQuery } = useSearchReset({
   }
 });
 
-/** 新增按钮操作 */
+
 const handleAdd = () => {
   if (!hasLockedTour.value) {
     warnNoLockedTour();
     return;
   }
-  openDialog('添加团期');
+  openDialog(bt('addDeparture'));
   lockTourForm();
 };
 
-/** 修改按钮操作 */
+
 const handleUpdate = async (row?: Partial<DepartureVO>) => {
   if (!hasLockedTour.value) {
     warnNoLockedTour();
@@ -433,10 +434,10 @@ const handleUpdate = async (row?: Partial<DepartureVO>) => {
   form.value.returnDate = normalizeDateValue(res.data?.returnDate);
   lockTourForm();
   refreshDiscountRate();
-  showDialog('修改团期');
+  showDialog(bt('editDeparture'));
 };
 
-/** 提交按钮 */
+
 const submitForm = () => {
   lockTourForm();
   refreshDiscountRate();
@@ -453,22 +454,22 @@ const submitForm = () => {
       } else {
         await addDeparture(buildSubmitForm()).finally(() => (buttonLoading.value = false));
       }
-      modal.msgSuccess('操作成功');
+      modal.msgSuccess(bt('operationSuccess'));
       closeDialog();
       await getList();
     }
   });
 };
 
-/** 删除按钮操作 */
+
 const handleDelete = async (row?: Partial<DepartureVO>) => {
   const _ids = row?.id || ids.value;
   if (!_ids || (Array.isArray(_ids) && !_ids.length)) {
     return;
   }
-  await modal.confirm('是否确认删除团期编号为"' + _ids + '"的数据项？');
+  await modal.confirm(bt('confirmDeleteDeparture', { ids: _ids }));
   await delDeparture(_ids);
-  modal.msgSuccess('删除成功');
+  modal.msgSuccess(bt('deleteSuccess'));
   await getList();
 };
 

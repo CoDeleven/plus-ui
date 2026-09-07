@@ -4,42 +4,42 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>Review filters</h3></div>
+            <div><h3>{{ bt('reviewFilters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-          <el-form-item label="Tour" prop="tourId">
-            <el-select v-model="queryParams.tourId" placeholder="Tour" clearable filterable>
+          <el-form-item :label="bt('tour')" prop="tourId">
+            <el-select v-model="queryParams.tourId" :placeholder="bt('tour')" clearable filterable>
               <el-option v-for="tour in tourOptions" :key="tour.id" :label="tour.name" :value="tour.id" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Keyword" prop="keyword">
-            <el-input v-model="queryParams.keyword" placeholder="Title / content" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="bt('keyword')" prop="keyword">
+            <el-input v-model="queryParams.keyword" :placeholder="bt('titleContent')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="Status" prop="status">
-            <el-select v-model="queryParams.status" placeholder="Status" clearable>
+          <el-form-item :label="bt('status')" prop="status">
+            <el-select v-model="queryParams.status" :placeholder="bt('status')" clearable>
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Source" prop="source">
-            <el-select v-model="queryParams.source" placeholder="Source" clearable>
+          <el-form-item :label="bt('source')" prop="source">
+            <el-select v-model="queryParams.source" :placeholder="bt('source')" clearable>
               <el-option v-for="item in sourceOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Published">
+          <el-form-item :label="bt('published')">
             <el-date-picker
               v-model="dateRange"
               value-format="YYYY-MM-DD HH:mm:ss"
               type="daterange"
               range-separator="-"
-              start-placeholder="Start"
-              end-placeholder="End"
+              :start-placeholder="bt('start')"
+              :end-placeholder="bt('end')"
               :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
             />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">Search</el-button>
-            <el-button icon="Refresh" @click="resetQuery">Reset</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -49,12 +49,12 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>Reviews</h3>
+            <h3>{{ bt('reviews') }}</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['boxhilltravel_manager:review:add']" type="primary" plain icon="Plus" @click="handleAdd">Add</el-button>
-            <el-button v-hasPermi="['boxhilltravel_manager:review:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">Edit</el-button>
-            <el-button v-hasPermi="['boxhilltravel_manager:review:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">Delete</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:review:add']" type="primary" plain icon="Plus" @click="handleAdd">{{ bt('add') }}</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:review:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">{{ bt('edit') }}</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:review:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">{{ bt('delete') }}</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -62,31 +62,31 @@
 
       <el-table v-loading="loading" border class="data-table" :data="reviewList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="Avatar" align="center" width="90">
+        <el-table-column :label="bt('avatar')" align="center" width="90">
           <template #default="scope">
             <el-avatar :size="42" :src="scope.row.userAvatar || scope.row.avatar">{{ avatarInitial(scope.row.nickname) }}</el-avatar>
           </template>
         </el-table-column>
-        <el-table-column label="Nickname" align="center" prop="nickname" min-width="130" show-overflow-tooltip />
-        <el-table-column label="Tour" align="center" prop="tourName" min-width="220" show-overflow-tooltip />
-        <el-table-column label="Title" align="center" prop="title" min-width="180" show-overflow-tooltip />
-        <el-table-column label="Content" align="center" prop="content" min-width="260" show-overflow-tooltip />
-        <el-table-column label="Rating" align="center" width="150">
+        <el-table-column :label="bt('nickname')" align="center" prop="nickname" min-width="130" show-overflow-tooltip />
+        <el-table-column :label="bt('tour')" align="center" prop="tourName" min-width="220" show-overflow-tooltip />
+        <el-table-column :label="bt('title')" align="center" prop="title" min-width="180" show-overflow-tooltip />
+        <el-table-column :label="bt('content')" align="center" prop="content" min-width="260" show-overflow-tooltip />
+        <el-table-column :label="bt('rating')" align="center" width="150">
           <template #default="scope">
             <el-rate :model-value="scope.row.rating" disabled />
           </template>
         </el-table-column>
-        <el-table-column label="Source" align="center" prop="source" width="120">
+        <el-table-column :label="bt('source')" align="center" prop="source" width="120">
           <template #default="scope">
             <el-tag :type="scope.row.source === 2 ? 'success' : 'info'">{{ sourceLabel(scope.row.source) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Status" align="center" prop="status" width="120">
+        <el-table-column :label="bt('status')" align="center" prop="status" width="120">
           <template #default="scope">
             <el-tag :type="statusTagType(scope.row.status)">{{ statusLabel(scope.row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Featured" align="center" prop="featured" width="110">
+        <el-table-column :label="bt('featured')" align="center" prop="featured" width="110">
           <template #default="scope">
             <el-switch
               v-model="scope.row.featured"
@@ -97,14 +97,14 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="Published" align="center" prop="publishedAt" width="170">
+        <el-table-column :label="bt('published')" align="center" prop="publishedAt" width="170">
           <template #default="scope">
             {{ scope.row.publishedAt ? parseTime(scope.row.publishedAt) : '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="Action" align="center" fixed="right" width="210">
+        <el-table-column :label="bt('action')" align="center" fixed="right" width="210">
           <template #default="scope">
-            <el-tooltip v-if="showAuditActions(scope.row)" content="Approve" placement="top">
+            <el-tooltip v-if="showAuditActions(scope.row)" :content="bt('approve')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:review:audit']"
                 link
@@ -114,7 +114,7 @@
                 @click="handleApprove(scope.row)"
               />
             </el-tooltip>
-            <el-tooltip v-if="showAuditActions(scope.row)" content="Reject" placement="top">
+            <el-tooltip v-if="showAuditActions(scope.row)" :content="bt('reject')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:review:audit']"
                 link
@@ -124,10 +124,10 @@
                 @click="handleReject(scope.row)"
               />
             </el-tooltip>
-            <el-tooltip content="Edit" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:review:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
             </el-tooltip>
-            <el-tooltip content="Delete" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:review:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
@@ -145,55 +145,55 @@
 
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="720px" append-to-body>
       <el-form ref="reviewFormRef" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="Tour" prop="tourId">
-          <el-select v-model="form.tourId" placeholder="Tour" filterable>
+        <el-form-item :label="bt('tour')" prop="tourId">
+          <el-select v-model="form.tourId" :placeholder="bt('tour')" filterable>
             <el-option v-for="tour in tourOptions" :key="tour.id" :label="tour.name" :value="tour.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Nickname" prop="nickname">
-          <el-input v-model="form.nickname" placeholder="Reviewer nickname" />
+        <el-form-item :label="bt('nickname')" prop="nickname">
+          <el-input v-model="form.nickname" :placeholder="bt('reviewerNickname')" />
         </el-form-item>
-        <el-form-item label="Avatar" prop="avatar">
+        <el-form-item :label="bt('avatar')" prop="avatar">
           <div v-if="isUrl(form.avatar)" class="avatar-url-editor">
             <el-avatar :size="56" :src="form.avatar">{{ avatarInitial(form.nickname) }}</el-avatar>
-            <el-input v-model="form.avatar" placeholder="Avatar URL" />
+            <el-input v-model="form.avatar" :placeholder="bt('avatarUrl')" />
           </div>
           <image-upload v-else v-model="form.avatar" :limit="1" />
         </el-form-item>
-        <el-form-item label="Title" prop="title">
-          <el-input v-model="form.title" placeholder="Review title" />
+        <el-form-item :label="bt('title')" prop="title">
+          <el-input v-model="form.title" :placeholder="bt('reviewTitle')" />
         </el-form-item>
-        <el-form-item label="Content" prop="content">
-          <el-input v-model="form.content" type="textarea" :rows="5" placeholder="Review content" />
+        <el-form-item :label="bt('content')" prop="content">
+          <el-input v-model="form.content" type="textarea" :rows="5" :placeholder="bt('reviewContent')" />
         </el-form-item>
-        <el-form-item label="Rating" prop="rating">
+        <el-form-item :label="bt('rating')" prop="rating">
           <el-rate v-model="form.rating" />
         </el-form-item>
-        <el-form-item label="Sort" prop="sortOrder">
+        <el-form-item :label="bt('sort')" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" controls-position="right" :min="0" />
         </el-form-item>
-        <el-form-item label="Featured" prop="featured">
+        <el-form-item :label="bt('featured')" prop="featured">
           <el-switch v-model="form.featured" :active-value="1" :inactive-value="0" />
         </el-form-item>
-        <el-form-item label="Status" prop="status">
-          <el-select v-model="form.status" placeholder="Status">
+        <el-form-item :label="bt('status')" prop="status">
+          <el-select v-model="form.status" :placeholder="bt('status')">
             <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Published At" prop="publishedAt">
+        <el-form-item :label="bt('publishedAt')" prop="publishedAt">
           <el-date-picker
             v-model="form.publishedAt"
             type="datetime"
             value-format="YYYY-MM-DD HH:mm:ss"
-            placeholder="Published time"
+            :placeholder="bt('publishedTime')"
             clearable
           />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">Confirm</el-button>
-          <el-button @click="cancel">Cancel</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -221,17 +221,19 @@ import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { parseTime } from '@/utils/ruoyi';
+import { useBoxhillI18n } from '../useBoxhillI18n';
 
-const statusOptions = [
-  { label: 'Pending', value: 0 },
-  { label: 'Published', value: 1 },
-  { label: 'Rejected', value: 2 }
-];
+const { bt } = useBoxhillI18n();
+const statusOptions = computed(() => [
+  { label: bt('pending'), value: 0 },
+  { label: bt('published'), value: 1 },
+  { label: bt('rejected'), value: 2 }
+]);
 
-const sourceOptions = [
-  { label: 'Manager', value: 1 },
-  { label: 'Customer', value: 2 }
-];
+const sourceOptions = computed(() => [
+  { label: bt('manager'), value: 1 },
+  { label: bt('customer'), value: 2 }
+]);
 
 const reviewList = ref<ReviewVO[]>([]);
 const tourOptions = ref<TourVO[]>([]);
@@ -273,11 +275,11 @@ const data = reactive<PageData<ReviewForm, ReviewQuery>>({
     params: {}
   },
   rules: {
-    tourId: [{ required: true, message: 'Tour is required', trigger: 'change' }],
-    nickname: [{ required: true, message: 'Nickname is required', trigger: 'blur' }],
-    title: [{ required: true, message: 'Title is required', trigger: 'blur' }],
-    content: [{ required: true, message: 'Content is required', trigger: 'blur' }],
-    rating: [{ required: true, message: 'Rating is required', trigger: 'change' }]
+    tourId: [{ required: true, message: bt('tourRequired'), trigger: 'change' }],
+    nickname: [{ required: true, message: bt('nicknameRequired'), trigger: 'blur' }],
+    title: [{ required: true, message: bt('titleRequired'), trigger: 'blur' }],
+    content: [{ required: true, message: bt('contentRequired'), trigger: 'blur' }],
+    rating: [{ required: true, message: bt('ratingRequired'), trigger: 'change' }]
   }
 });
 
@@ -318,7 +320,7 @@ const { resetQuery } = useSearchReset({
 });
 
 const handleAdd = () => {
-  openDialog('Add review');
+  openDialog(bt('addReview'));
 };
 
 const handleUpdate = async (row?: Partial<ReviewVO>) => {
@@ -326,7 +328,7 @@ const handleUpdate = async (row?: Partial<ReviewVO>) => {
   const id = row?.id || ids.value[0];
   const res = await getReview(id);
   Object.assign(form.value, res.data);
-  showDialog('Edit review');
+  showDialog(bt('editReview'));
 };
 
 const submitForm = () => {
@@ -339,7 +341,7 @@ const submitForm = () => {
       } else {
         await addReview(form.value);
       }
-      modal.msgSuccess('Saved');
+      modal.msgSuccess(bt('saved'));
       closeDialog();
       await getList();
     } finally {
@@ -355,40 +357,40 @@ const cancel = () => {
 
 const handleDelete = async (row?: Partial<ReviewVO>) => {
   const reviewIds = row?.id || ids.value;
-  await modal.confirm('Delete selected review(s): ' + reviewIds + '?');
+  await modal.confirm(bt('confirmDeleteReview', { ids: reviewIds }));
   await delReview(reviewIds);
-  modal.msgSuccess('Deleted');
+  modal.msgSuccess(bt('deleted'));
   await getList();
 };
 
 const handleApprove = async (row: ReviewVO) => {
-  await modal.confirm('Approve this review?');
+  await modal.confirm(bt('confirmApproveReview'));
   await auditReview({ id: row.id, status: 1 });
-  modal.msgSuccess('Approved');
+  modal.msgSuccess(bt('approved'));
   await getList();
 };
 
 const handleReject = async (row: ReviewVO) => {
-  const result = await modal.prompt('Reject reason');
+  const result = await modal.prompt(bt('rejectReason'));
   await auditReview({ id: row.id, status: 2, rejectReason: result.value });
-  modal.msgSuccess('Rejected');
+  modal.msgSuccess(bt('rejected'));
   await getList();
 };
 
 const handleFeaturedChange = async (row: ReviewVO) => {
   try {
     await changeReviewFeatured({ id: row.id, featured: row.featured });
-    modal.msgSuccess('Updated');
+    modal.msgSuccess(bt('updated'));
   } catch (err) {
     row.featured = row.featured === 1 ? 0 : 1;
   }
 };
 
-const avatarInitial = (name?: string) => (name || 'U').slice(0, 1).toUpperCase();
+const avatarInitial = (name?: string) => (name || bt('userInitial')).slice(0, 1).toUpperCase();
 const isUrl = (value?: string) => Boolean(value && (/^https?:\/\//.test(value) || value.startsWith('//')));
 const showAuditActions = (row: ReviewVO) => row.source !== 1;
-const sourceLabel = (source?: number) => sourceOptions.find(item => item.value === source)?.label || '-';
-const statusLabel = (status?: number) => statusOptions.find(item => item.value === status)?.label || '-';
+const sourceLabel = (source?: number) => sourceOptions.value.find(item => item.value === source)?.label || '-';
+const statusLabel = (status?: number) => statusOptions.value.find(item => item.value === status)?.label || '-';
 const statusTagType = (status?: number) => {
   if (status === 1) return 'success';
   if (status === 2) return 'danger';

@@ -4,13 +4,13 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading flex items-center gap-2">
-            <el-button link type="primary" icon="ArrowLeft" @click="handleBack">返回</el-button>
-            <h3>行程管理 — {{ tourName }}</h3>
+            <el-button link type="primary" icon="ArrowLeft" @click="handleBack">{{ bt('back') }}</el-button>
+            <h3>{{ bt('itineraries') }}— {{ tourName }}</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel_manager:tour_itinerary:add']">新增</el-button>
-            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel_manager:tour_itinerary:edit']">修改</el-button>
-            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel_manager:tour_itinerary:remove']">删除</el-button>
+            <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel_manager:tour_itinerary:add']">{{ bt('add') }}</el-button>
+            <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel_manager:tour_itinerary:edit']">{{ bt('edit') }}</el-button>
+            <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel_manager:tour_itinerary:remove']">{{ bt('delete') }}</el-button>
             <right-toolbar :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -18,26 +18,26 @@
 
       <el-table v-loading="loading" border class="data-table" :data="tour_itineraryList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="第几天" align="center" prop="dayNumber" />
-        <el-table-column label="标题" align="center" prop="title">
+        <el-table-column :label="bt('dayNumber')" align="center" prop="dayNumber" />
+        <el-table-column :label="bt('title')" align="center" prop="title">
           <template #default="scope">
             <el-link type="primary" @click="handleActivity(scope.row as Tour_itineraryVO)">{{ scope.row.title }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column label="描述" align="center" prop="description" :show-overflow-tooltip="true" />
-        <el-table-column label="起始destination" align="center" prop="fromDestination" />
-        <el-table-column label="结束destination" align="center" prop="toDestination" />
-        <el-table-column label="餐食 B/L/D" align="center" prop="meals">
+        <el-table-column :label="bt('description')" align="center" prop="description" :show-overflow-tooltip="true" />
+        <el-table-column :label="bt('fromDestination')" align="center" prop="fromDestination" />
+        <el-table-column :label="bt('toDestination')" align="center" prop="toDestination" />
+        <el-table-column :label="bt('mealsBld')" align="center" prop="meals">
           <template #default="scope">
             <dict-tag :options="dining" :value="parseMealValues(scope.row.meals)"/>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+        <el-table-column :label="bt('actions')" align="center" class-name="small-padding fixed-width">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['boxhilltravel_manager:tour_itinerary:edit']"></el-button>
             </el-tooltip>
-            <el-tooltip content="删除" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['boxhilltravel_manager:tour_itinerary:remove']"></el-button>
             </el-tooltip>
           </template>
@@ -46,26 +46,26 @@
 
       <pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList" />
     </el-card>
-    <!-- 添加或修改行程对话框 -->
+    
     <el-dialog :title="dialog.title" v-model="dialog.visible" width="500px" append-to-body>
       <el-form ref="tour_itineraryFormRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="第几天" prop="dayNumber">
+        <el-form-item :label="bt('dayNumber')" prop="dayNumber">
           <el-input-number v-model="form.dayNumber" controls-position="right" :min="1" />
         </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入标题" />
+        <el-form-item :label="bt('title')" prop="title">
+          <el-input v-model="form.title" :placeholder="bt('enterTitle')" />
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-            <el-input v-model="form.description" type="textarea" placeholder="请输入内容" />
+        <el-form-item :label="bt('description')" prop="description">
+            <el-input v-model="form.description" type="textarea" :placeholder="bt('enterContent')" />
         </el-form-item>
-        <el-form-item label="起始destination" prop="fromDestinationId">
+        <el-form-item :label="bt('fromDestination')" prop="fromDestinationId">
           <el-tree-select
             v-model="form.fromDestinationId"
             :data="destinationOptions"
             :props="destinationTreeProps as any"
             value-key="id"
             node-key="id"
-            placeholder="请选择起始destination"
+            :placeholder="bt('selectFromDestination')"
             check-strictly
             filterable
             remote
@@ -77,14 +77,14 @@
             :cache-data="destinationCacheOptions"
           />
         </el-form-item>
-        <el-form-item label="结束destination" prop="toDestinationId">
+        <el-form-item :label="bt('toDestination')" prop="toDestinationId">
           <el-tree-select
             v-model="form.toDestinationId"
             :data="destinationOptions"
             :props="destinationTreeProps as any"
             value-key="id"
             node-key="id"
-            placeholder="请选择结束destination"
+            :placeholder="bt('selectToDestination')"
             check-strictly
             filterable
             remote
@@ -96,8 +96,8 @@
             :cache-data="destinationCacheOptions"
           />
         </el-form-item>
-        <el-form-item label="餐食 B/L/D" prop="meals">
-          <el-select v-model="selectedMeals" multiple collapse-tags collapse-tags-tooltip placeholder="请选择餐食 B/L/D">
+        <el-form-item :label="bt('mealsBld')" prop="meals">
+          <el-select v-model="selectedMeals" multiple collapse-tags collapse-tags-tooltip :placeholder="bt('selectMealsBld')">
             <el-option
                 v-for="dict in dining"
                 :key="dict.value"
@@ -109,8 +109,8 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -118,9 +118,10 @@
 </template>
 
 <script setup name="Tour_itinerary" lang="ts">
+
+import { useBoxhillI18n } from '../useBoxhillI18n';
 import type { LoadFunction } from 'element-plus';
-import {
-  addTour_itinerary,
+import {  addTour_itinerary,
   delTour_itinerary,
   getTour_itinerary,
   listTour_itinerary,
@@ -137,10 +138,12 @@ import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
 import { useRoute } from 'vue-router';
 
+const { bt } = useBoxhillI18n();
+
 const { dining } = toRefs<any>(useDict('dining'));
 
 const route = useRoute();
-// 当前线路ID（只读，全程锁定，不允许跨线路操作）
+
 const tourId = computed(() => route.query.tourId as string | number);
 const tourName = computed(() => (route.query.tourName as string) || '');
 
@@ -184,10 +187,10 @@ const data = reactive<PageData<Tour_itineraryForm, Tour_itineraryQuery>>({
   },
   rules: {
 dayNumber: [
-      { required: true, message: "第几天不能为空", trigger: "change" }
+      { required: true, message: bt('dayNumberRequired'), trigger: "change" }
     ],
 title: [
-      { required: true, message: "标题不能为空", trigger: "blur" }
+      { required: true, message: bt('titleRequired'), trigger: "blur" }
     ],
   }
 });
@@ -306,10 +309,10 @@ const cacheDestinationOptionsByIds = async (...ids: Array<string | number | unde
   destinationCacheOptions.value = rows.filter(Boolean).map(toDestinationOption);
 };
 
-/** 查询行程列表 */
+
 const getList = async () => {
   await withLoading(async () => {
-    // 始终锁定当前线路，防止跨线路查询
+
     queryParams.value.tourId = tourId.value;
     const res = await listTour_itinerary(queryParams.value);
     tour_itineraryList.value = res.data?.rows;
@@ -317,23 +320,23 @@ const getList = async () => {
   });
 };
 
-/** 取消按钮 */
+
 const cancel = () => {
   selectedMeals.value = [];
   reset();
   closeDialog();
 };
 
-/** 新增按钮操作 */
+
 const handleAdd = () => {
-  openDialog('添加行程');
+  openDialog(bt('addItinerary'));
   selectedMeals.value = [];
   destinationCacheOptions.value = [];
-  // openDialog 内部会 resetForm 清空 tourId，此处回填当前线路
+
   form.value.tourId = tourId.value;
 };
 
-/** 修改按钮操作 */
+
 const handleUpdate = async (row?: Partial<Tour_itineraryVO>) => {
   reset();
   const _id = row?.id || ids.value[0];
@@ -341,15 +344,15 @@ const handleUpdate = async (row?: Partial<Tour_itineraryVO>) => {
   Object.assign(form.value, res.data);
   selectedMeals.value = parseMealValues(res.data?.meals);
   await cacheDestinationOptionsByIds(res.data?.fromDestinationId, res.data?.toDestinationId);
-  showDialog('修改行程');
+  showDialog(bt('editItinerary'));
 };
 
-/** 提交按钮 */
+
 const submitForm = () => {
   tour_itineraryFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
       buttonLoading.value = true;
-      // 新增时强制锁定当前线路（编辑保留原值）
+
       if (!form.value.id) {
         form.value.tourId = tourId.value;
       }
@@ -359,31 +362,31 @@ const submitForm = () => {
       } else {
         await addTour_itinerary(form.value).finally(() => (buttonLoading.value = false));
       }
-      modal.msgSuccess('操作成功');
+      modal.msgSuccess(bt('operationSuccess'));
       closeDialog();
       await getList();
     }
   });
 };
 
-/** 删除按钮操作 */
+
 const handleDelete = async (row?: Partial<Tour_itineraryVO>) => {
   const _ids = row?.id || ids.value;
-  await modal.confirm('是否确认删除行程编号为"' + _ids + '"的数据项？');
+  await modal.confirm(bt('confirmDeleteItinerary', { ids: _ids }));
   await delTour_itinerary(_ids);
-  modal.msgSuccess('删除成功');
+  modal.msgSuccess(bt('deleteSuccess'));
   await getList();
 };
 
 const handleActivity = (row: Tour_itineraryVO) => {
-  tab.openPage('/boxhilltravel_manager/tour_itinerary_activity', '行程活动 - ' + row.title, {
+  tab.openPage('/boxhilltravel_manager/tour_itinerary_activity', bt('text005') + row.title, {
     tour_itinerary_id: row.id,
     tourId: row.tourId,
     itineraryTitle: row.title
   });
 };
 
-/** 返回线路列表 */
+
 const handleBack = () => {
   tab.closePage();
 };

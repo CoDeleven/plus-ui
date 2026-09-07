@@ -8,17 +8,20 @@ import { useUserStore } from '@/store/modules/user';
 import { getToken } from '@/utils/auth';
 import { decryptBase64, decryptWithAes, encryptBase64, encryptWithAes, generateAesKey } from '@/utils/crypto';
 import { errorCode } from '@/utils/errorCode';
+import i18n from '@/lang';
 import { decrypt, encrypt } from '@/utils/jsencrypt';
 import { blobValidate, tansParams } from '@/utils/ruoyi';
 import { saveBlob } from '@/utils/save';
 
-/** axios 1.13 + TS6：默认导出在类型上会被解析为不可调用的 export= 形态 */
+
 const axios = axiosModule as any;
 
 const encryptHeader = 'encrypt-key';
 let downloadLoadingInstance: LoadingInstance | undefined;
-// 是否显示重新登录
+
 export const isRelogin = { show: false };
+
+const t = (key: string, named?: Record<string, unknown>) => i18n.global.t(key, named);
 
 function createHandledError(message: string) {
   const error = new Error(message) as Error & { isHandled?: boolean };
@@ -35,13 +38,13 @@ function normalizeErrorMessage(message?: string) {
     return undefined;
   }
   if (message === 'Network Error') {
-    return '后端接口连接异常';
+    return t('common.networkError');
   }
   if (message.includes('timeout')) {
-    return '系统接口请求超时';
+    return t('common.requestTimeout');
   }
   if (message.includes('Request failed with status code')) {
-    return '系统接口' + message.slice(-3) + '异常';
+    return t('common.requestStatusError', { status: message.slice(-3) });
   }
   return message;
 }
@@ -96,32 +99,31 @@ export const globalHeaders = () => {
 
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8';
 axios.defaults.headers['clientid'] = import.meta.env.VITE_APP_CLIENT_ID;
-// 创建 axios 实例
+
 const service = axios.create({
   baseURL: import.meta.env.VITE_APP_BASE_API,
   timeout: 50000,
   transitional: {
-    // 超时错误更明确
+
     clarifyTimeoutError: true
   }
 });
 
-// 请求拦截器
 service.interceptors.request.use(
   (config: any) => {
-    // 对应国际化资源文件后缀
+
     config.headers['Content-Language'] = getLanguage();
 
     const isToken = config.headers?.isToken === false;
-    // 是否需要防止数据重复提交
+
     const isRepeatSubmit = config.headers?.repeatSubmit === false;
-    // 是否需要加密
+
     const isEncrypt = config.headers?.isEncrypt === 'true';
 
     if (getToken() && !isToken) {
-      config.headers['Authorization'] = 'Bearer ' + getToken(); // 让每个请求携带自定义token 请根据实际情况自行修改
+      config.headers['Authorization'] = 'Bearer ' + getToken();
     }
-    // get请求映射params参数
+
     if (config.method === 'get' && config.params) {
       let url = config.url + '?' + tansParams(config.params);
       url = url.slice(0, -1);
@@ -139,12 +141,12 @@ service.interceptors.request.use(
       if (sessionObj === undefined || sessionObj === null || sessionObj === '') {
         cache.session.setJSON('sessionObj', requestObj);
       } else {
-        const s_url = sessionObj.url; // 请求地址
-        const s_data = sessionObj.data; // 请求数据
-        const s_time = sessionObj.time; // 请求时间
-        const interval = 500; // 间隔时间(ms)，小于此时间视为重复提交
+        const s_url = sessionObj.url;
+        const s_data = sessionObj.data;
+        const s_time = sessionObj.time;
+        const interval = 500;
         if (s_data === requestObj.data && requestObj.time - s_time < interval && s_url === requestObj.url) {
-          const message = '数据正在处理，请勿重复提交';
+          const message = t('common.repeatSubmit');
           console.warn(`[${s_url}]: ` + message);
           return Promise.reject(new Error(message));
         } else {
@@ -153,9 +155,9 @@ service.interceptors.request.use(
       }
     }
     if (import.meta.env.VITE_APP_ENCRYPT === 'true') {
-      // 当开启参数加密
+
       if (isEncrypt && (config.method === 'post' || config.method === 'put')) {
-        // 生成一个 AES 密钥
+
         const aesKey = generateAesKey();
         config.headers[encryptHeader] = encrypt(encryptBase64(aesKey));
         config.data =
@@ -164,7 +166,7 @@ service.interceptors.request.use(
             : encryptWithAes(config.data, aesKey);
       }
     }
-    // FormData数据去请求头Content-Type
+
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
@@ -175,30 +177,29 @@ service.interceptors.request.use(
   }
 );
 
-// 响应拦截器
 service.interceptors.response.use(
   (res: any) => {
     if (import.meta.env.VITE_APP_ENCRYPT === 'true') {
-      // 加密后的 AES 秘钥
+
       const keyStr = res.headers[encryptHeader];
-      // 加密
+
       if (keyStr != null && keyStr != '') {
         const data = res.data;
-        // 请求体 AES 解密
+
         const base64Str = decrypt(keyStr);
-        // base64 解码 得到请求头的 AES 秘钥
+
         const aesKey = decryptBase64(base64Str.toString());
-        // aesKey 解码 data
+
         const decryptData = decryptWithAes(data, aesKey);
-        // 将结果 (得到的是 JSON 字符串) 转为 JSON
+
         res.data = JSON.parse(decryptData);
       }
     }
-    // 未设置状态码则默认成功状态
+
     const code = res.data.code || HttpStatus.SUCCESS;
-    // 获取错误信息
+
     const msg = res.data.msg || errorCode[code] || errorCode['default'];
-    // 二进制数据则直接返回
+
     if (res.request.responseType === 'blob' || res.request.responseType === 'arraybuffer') {
       return res.data;
     }
@@ -207,11 +208,11 @@ service.interceptors.response.use(
       if (!isRelogin.show) {
 				isRelogin.show = true;
 				ElMessageBox.confirm(
-					"登录状态已过期，您可以继续留在该页面，或者重新登录",
-					"系统提示",
+					t("common.sessionExpired"),
+					t("common.systemPrompt"),
 					{
-						confirmButtonText: "重新登录",
-						cancelButtonText: "取消",
+						confirmButtonText: t("common.relogin"),
+						cancelButtonText: t("common.cancel"),
 						type: "warning",
 					},
 				)
@@ -234,7 +235,7 @@ service.interceptors.response.use(
 						isRelogin.show = false;
 					});
 			}
-      return Promise.reject('无效的会话，或者会话已过期，请重新登录。');
+      return Promise.reject(t('common.invalidSession'));
     } else if (code === HttpStatus.SERVER_ERROR) {
       ElMessage({ message: msg, type: 'error' });
       return Promise.reject(createHandledError(msg));
@@ -255,10 +256,10 @@ service.interceptors.response.use(
     return Promise.reject(error);
   }
 );
-// 通用下载方法
+
 export function download(url: string, params: any, fileName: string) {
   downloadLoadingInstance = ElLoading.service({
-    text: '正在下载数据，请稍候',
+    text: t('common.downloadLoading'),
     background: 'rgba(0, 0, 0, 0.7)'
   });
   // prettier-ignore
@@ -292,5 +293,5 @@ export function download(url: string, params: any, fileName: string) {
 			downloadLoadingInstance?.close();
 		});
 }
-// 导出 axios 实例
+
 export default service;

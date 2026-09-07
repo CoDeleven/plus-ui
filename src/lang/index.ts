@@ -1,19 +1,16 @@
-// 自定义国际化配置
+
 import { createI18n } from 'vue-i18n';
 import { LanguageEnum } from '@/enums/LanguageEnum';
 import en_US from '@/lang/en_US';
 import zh_CN from '@/lang/zh_CN';
 
-/**
- * 获取当前语言
- * @returns zh-cn|en ...
- */
+
 export const getLanguage = (): LanguageEnum => {
-  const language = useStorage<LanguageEnum>('language', LanguageEnum.zh_CN);
+  const language = useStorage<LanguageEnum>('language', LanguageEnum.en_US);
   if (language.value) {
     return language.value;
   }
-  return LanguageEnum.zh_CN;
+  return LanguageEnum.en_US;
 };
 
 const i18n = createI18n({

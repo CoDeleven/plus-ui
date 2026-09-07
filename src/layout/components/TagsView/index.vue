@@ -17,7 +17,7 @@
         @contextmenu.prevent="openMenu(tag, $event)"
       >
         <svg-icon v-if="tagsIcon && tag.meta && tag.meta.icon && tag.meta.icon !== '#'" :icon-class="tag.meta.icon" />
-        <span class="tags-view-item-title">{{ tag.title || tag.meta?.title }}</span>
+        <span class="tags-view-item-title">{{ routeTitle(tag.title || tag.meta?.title) }}</span>
         <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
           <Close class="el-icon-close" style="width: 1em; height: 1em; vertical-align: middle" />
         </span>
@@ -34,54 +34,54 @@
       </span>
       <template #dropdown>
         <el-dropdown-menu class="tags-dropdown-menu">
-          <el-dropdown-item v-if="!isAffix(selectedDropdownTag)" command="close">关闭当前</el-dropdown-item>
-          <el-dropdown-item command="closeOthers">关闭其他</el-dropdown-item>
-          <el-dropdown-item command="closeLeft" :disabled="isFirstView()">关闭左侧</el-dropdown-item>
-          <el-dropdown-item command="closeRight" :disabled="isLastView()">关闭右侧</el-dropdown-item>
-          <el-dropdown-item command="closeAll">全部关闭</el-dropdown-item>
+          <el-dropdown-item v-if="!isAffix(selectedDropdownTag)" command="close">{{ t('tagsView.closeCurrent') }}</el-dropdown-item>
+          <el-dropdown-item command="closeOthers">{{ t('tagsView.closeOthers') }}</el-dropdown-item>
+          <el-dropdown-item command="closeLeft" :disabled="isFirstView()">{{ t('tagsView.closeLeft') }}</el-dropdown-item>
+          <el-dropdown-item command="closeRight" :disabled="isLastView()">{{ t('tagsView.closeRight') }}</el-dropdown-item>
+          <el-dropdown-item command="closeAll">{{ t('tagsView.closeAll') }}</el-dropdown-item>
           <el-dropdown-item command="fullscreen" divided>
             <template v-if="!isFullscreen">
               <FullScreen />
-              <span>全屏显示</span>
+              <span>{{ t('tagsView.fullscreen') }}</span>
             </template>
             <template v-else>
               <CloseBold />
-              <span>退出全屏</span>
+              <span>{{ t('tagsView.exitFullscreen') }}</span>
             </template>
           </el-dropdown-item>
         </el-dropdown-menu>
       </template>
     </el-dropdown>
 
-    <span class="tags-action-btn tags-refresh-btn" title="刷新页面" @click="refreshSelectedTag(selectedDropdownTag)">
+    <span class="tags-action-btn tags-refresh-btn" :title="t('tagsView.refreshPage')" @click="refreshSelectedTag(selectedDropdownTag)">
       <el-icon><RefreshRight /></el-icon>
-      <span>刷新</span>
+      <span>{{ t('tagsView.refresh') }}</span>
     </span>
 
     <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">
         <RefreshRight style="width: 1em; height: 1em" />
-        刷新页面
+        {{ t('tagsView.refreshPage') }}
       </li>
       <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
         <Close style="width: 1em; height: 1em" />
-        关闭当前
+        {{ t('tagsView.closeCurrent') }}
       </li>
       <li @click="closeOthersTags">
         <CircleClose style="width: 1em; height: 1em" />
-        关闭其他
+        {{ t('tagsView.closeOthers') }}
       </li>
       <li v-if="!isFirstView()" @click="closeLeftTags">
         <Back style="width: 1em; height: 1em" />
-        关闭左侧
+        {{ t('tagsView.closeLeft') }}
       </li>
       <li v-if="!isLastView()" @click="closeRightTags">
         <Right style="width: 1em; height: 1em" />
-        关闭右侧
+        {{ t('tagsView.closeRight') }}
       </li>
       <li @click="closeAllTags(selectedTag)">
         <CircleClose style="width: 1em; height: 1em" />
-        全部关闭
+        {{ t('tagsView.closeAll') }}
       </li>
     </ul>
   </div>
@@ -89,6 +89,7 @@
 
 <script setup lang="ts">
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import {
   ArrowDown,
   ArrowLeft,
@@ -106,6 +107,7 @@ import { usePermissionStore } from '@/store/modules/permission';
 import { useSettingsStore } from '@/store/modules/settings';
 import { useTagsViewStore } from '@/store/modules/tagsView';
 import { getNormalPath } from '@/utils/ruoyi';
+import { translateRouteTitle } from '@/utils/i18n';
 import ScrollPane from './ScrollPane.vue';
 
 const visible = ref(false);
@@ -121,6 +123,7 @@ const fullscreenModeClass = 'tags-fullscreen-mode';
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const settingsStore = useSettingsStore();
 const permissionStore = usePermissionStore();
 const tagsViewStore = useTagsViewStore();
@@ -131,6 +134,10 @@ const tagsIcon = computed(() => settingsStore.tagsIcon);
 const selectedDropdownTag = computed<RouteLocationNormalized | undefined>(() => {
   return visitedViews.value.find(tag => isActive(tag)) || selectedTag.value;
 });
+
+const routeTitle = (title: unknown): string => {
+  return title ? translateRouteTitle(String(title)) : '';
+};
 
 watch(route, () => {
   addTags();

@@ -3,9 +3,9 @@
     <transition-group name="breadcrumb">
       <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path">
         <span v-if="item.redirect === 'noRedirect' || index == levelList.length - 1" class="no-redirect">
-          {{ item.meta?.title }}
+          {{ routeTitle(item.meta?.title) }}
         </span>
-        <a v-else @click.prevent="handleLink(item)">{{ item.meta?.title }}</a>
+        <a v-else @click.prevent="handleLink(item)">{{ routeTitle(item.meta?.title) }}</a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import { RouteLocationMatched } from 'vue-router';
 import { usePermissionStore } from '@/store/modules/permission';
+import { translateRouteTitle } from '@/utils/i18n';
 
 const route = useRoute();
 const router = useRouter();
@@ -35,9 +36,9 @@ const getBreadcrumb = () => {
   } else {
     matched = route.matched.filter(item => item.meta && item.meta.title);
   }
-  // 判断是否为首页
+
   if (!isDashboard(matched[0])) {
-    matched = [{ path: '/index', meta: { title: '首页' } }].concat(matched);
+    matched = [{ path: '/index', meta: { title: 'dashboard' } }].concat(matched);
   }
   levelList.value = matched.filter(item => item.meta && item.meta.title && item.meta.breadcrumb !== false);
 };
@@ -65,6 +66,10 @@ const isDashboard = (route: RouteLocationMatched) => {
 const handleLink = item => {
   const { redirect, path } = item;
   redirect ? router.push(redirect) : router.push(path);
+};
+
+const routeTitle = (title: unknown): string => {
+  return title ? translateRouteTitle(String(title)) : '';
 };
 
 watchEffect(() => {

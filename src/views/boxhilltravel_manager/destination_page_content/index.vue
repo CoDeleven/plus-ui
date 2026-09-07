@@ -2,18 +2,18 @@
   <div class="p-2 destination-page-content-page">
     <el-card v-show="showSearch" shadow="hover" class="mb-3">
       <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item label="Country" prop="destinationName">
-          <el-input v-model="queryParams.destinationName" placeholder="Search country" clearable @keyup.enter="handleQuery" />
+        <el-form-item :label="bt('country')" prop="destinationName">
+          <el-input v-model="queryParams.destinationName" :placeholder="bt('searchCountry')" clearable @keyup.enter="handleQuery" />
         </el-form-item>
-        <el-form-item label="Status" prop="status">
-          <el-select v-model="queryParams.status" placeholder="All" clearable class="!w-36">
-            <el-option label="Draft" :value="0" />
-            <el-option label="Published" :value="1" />
+        <el-form-item :label="bt('status')" prop="status">
+          <el-select v-model="queryParams.status" :placeholder="bt('all')" clearable class="!w-36">
+            <el-option :label="bt('draft')" :value="0" />
+            <el-option :label="bt('published')" :value="1" />
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" icon="Search" @click="handleQuery">Search</el-button>
-          <el-button icon="Refresh" @click="resetQuery">Reset</el-button>
+          <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+          <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -21,9 +21,9 @@
     <el-card shadow="hover">
       <template #header>
         <div class="flex items-center justify-between">
-          <span class="text-base font-semibold">Destination Page Content</span>
+          <span class="text-base font-semibold">{{ bt('destinationPageContent') }}</span>
           <div class="flex items-center gap-2">
-            <el-button v-hasPermi="['boxhilltravel_manager:destination_page_content:add']" type="primary" plain icon="Plus" @click="handleAdd">Add</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:destination_page_content:add']" type="primary" plain icon="Plus" @click="handleAdd">{{ bt('add') }}</el-button>
             <el-button
               v-hasPermi="['boxhilltravel_manager:destination_page_content:remove']"
               type="danger"
@@ -41,48 +41,48 @@
 
       <el-table v-loading="loading" :data="contentList" border @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="Cover" align="center" width="88">
+        <el-table-column :label="bt('cover')" align="center" width="88">
           <template #default="scope">
             <image-preview v-if="scope.row.destinationImageUrl" :src="scope.row.destinationImageUrl" :width="52" :height="52" />
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="Country" min-width="180" show-overflow-tooltip>
+        <el-table-column :label="bt('country')" min-width="180" show-overflow-tooltip>
           <template #default="scope">
             <div class="font-medium text-gray-900">{{ scope.row.destinationNameEn || scope.row.destinationName || '-' }}</div>
             <div class="text-xs text-gray-500">{{ scope.row.regionNameEn || scope.row.regionName || '-' }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Currency" min-width="110" show-overflow-tooltip>
+        <el-table-column :label="bt('currency')" min-width="110" show-overflow-tooltip>
           <template #default="scope">{{ getDictLabel(currencyOptions, scope.row.currencyDictValue) }}</template>
         </el-table-column>
-        <el-table-column label="Language" min-width="120" show-overflow-tooltip>
+        <el-table-column :label="bt('language')" min-width="120" show-overflow-tooltip>
           <template #default="scope">{{ getDictLabel(languageOptions, scope.row.languageDictValue) }}</template>
         </el-table-column>
-        <el-table-column label="Time Zone" min-width="120" show-overflow-tooltip>
+        <el-table-column :label="bt('timeZone')" min-width="120" show-overflow-tooltip>
           <template #default="scope">{{ getDictLabel(timeZoneOptions, scope.row.timeZoneDictValue) }}</template>
         </el-table-column>
-        <el-table-column label="Status" align="center" width="105">
+        <el-table-column :label="bt('status')" align="center" width="105">
           <template #default="scope">
-            <el-tag :type="Number(scope.row.status) === 1 ? 'success' : 'info'">{{ Number(scope.row.status) === 1 ? 'Published' : 'Draft' }}</el-tag>
+            <el-tag :type="Number(scope.row.status) === 1 ? 'success' : 'info'">{{ Number(scope.row.status) === 1 ? bt('published') : bt('draft') }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Completeness" align="center" width="150">
+        <el-table-column :label="bt('completeness')" align="center" width="150">
           <template #default="scope">
             <el-tooltip :content="getMissingText(toRow(scope.row))" placement="top">
               <el-progress :percentage="scope.row.completeness || 0" :stroke-width="8" />
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="Updated" align="center" prop="updateTime" width="165">
+        <el-table-column :label="bt('updated')" align="center" prop="updateTime" width="165">
           <template #default="scope">{{ parseTime(scope.row.updateTime, '{y}-{m}-{d} {h}:{i}') }}</template>
         </el-table-column>
-        <el-table-column label="Actions" align="center" width="170" fixed="right">
+        <el-table-column :label="bt('actions')" align="center" width="170" fixed="right">
           <template #default="scope">
-            <el-tooltip content="Edit" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:destination_page_content:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
             </el-tooltip>
-            <el-tooltip :content="Number(scope.row.status) === 1 ? 'Unpublish' : 'Publish'" placement="top">
+            <el-tooltip :content="Number(scope.row.status) === 1 ? bt('unpublish') : bt('publish')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:destination_page_content:edit']"
                 link
@@ -91,7 +91,7 @@
                 @click="handleChangeStatus(toRow(scope.row))"
               />
             </el-tooltip>
-            <el-tooltip content="Delete" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:destination_page_content:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
@@ -104,102 +104,102 @@
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="980px" append-to-body destroy-on-close>
       <el-form ref="contentFormRef" :model="form" :rules="rules" label-width="130px">
         <el-tabs v-model="activeTab">
-          <el-tab-pane label="Overview" name="overview">
+          <el-tab-pane :label="bt('overview')" name="overview">
             <div class="grid grid-cols-1 gap-x-6 md:grid-cols-2">
-              <el-form-item label="Country" prop="destinationId">
+              <el-form-item :label="bt('country')" prop="destinationId">
                 <el-select
                   v-model="form.destinationId"
                   filterable
                   remote
                   clearable
                   reserve-keyword
-                  placeholder="Select country"
+                  :placeholder="bt('selectCountry')"
                   :remote-method="searchDestinationOptions"
                   :loading="destinationLoading"
                 >
                   <el-option v-for="item in destinationOptions" :key="item.id" :label="getDestinationOptionLabel(item)" :value="item.id" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="Currency">
-                <el-select v-model="form.currencyDictValue" placeholder="Select currency" filterable clearable>
+              <el-form-item :label="bt('currency')">
+                <el-select v-model="form.currencyDictValue" :placeholder="bt('selectCurrency')" filterable clearable>
                   <el-option v-for="item in currencyOptions" :key="item.dictValue" :label="item.dictLabel" :value="item.dictValue" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="Language">
-                <el-select v-model="form.languageDictValue" placeholder="Select language" filterable clearable>
+              <el-form-item :label="bt('language')">
+                <el-select v-model="form.languageDictValue" :placeholder="bt('selectLanguage')" filterable clearable>
                   <el-option v-for="item in languageOptions" :key="item.dictValue" :label="item.dictLabel" :value="item.dictValue" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="Time Zone">
-                <el-select v-model="form.timeZoneDictValue" placeholder="Select time zone" filterable clearable>
+              <el-form-item :label="bt('timeZone')">
+                <el-select v-model="form.timeZoneDictValue" :placeholder="bt('selectTimeZone')" filterable clearable>
                   <el-option v-for="item in timeZoneOptions" :key="item.dictValue" :label="item.dictLabel" :value="item.dictValue" />
                 </el-select>
               </el-form-item>
-              <el-form-item label="Visa">
-                <el-input v-model="form.visa" maxlength="100" placeholder="Short visa value" />
+              <el-form-item :label="bt('visa')">
+                <el-input v-model="form.visa" maxlength="100" :placeholder="bt('shortVisaValue')" />
               </el-form-item>
-              <el-form-item label="Visa Title">
-                <el-input v-model="form.visaTitle" maxlength="200" placeholder="Visa title" />
+              <el-form-item :label="bt('visaTitle')">
+                <el-input v-model="form.visaTitle" maxlength="200" :placeholder="bt('visaTitle')" />
               </el-form-item>
-              <el-form-item label="Visa Note" class="md:col-span-2">
-                <el-input v-model="form.visaNote" type="textarea" :rows="3" maxlength="1000" show-word-limit placeholder="Visa note" />
+              <el-form-item :label="bt('visaNote')" class="md:col-span-2">
+                <el-input v-model="form.visaNote" type="textarea" :rows="3" maxlength="1000" show-word-limit :placeholder="bt('visaNote')" />
               </el-form-item>
             </div>
 
             <div class="content-section">
               <div class="section-title">
-                <span>Introduction</span>
-                <el-button type="primary" link icon="Plus" @click="addIntroduction">Add</el-button>
+                <span>{{ bt('introduction') }}</span>
+                <el-button type="primary" link icon="Plus" @click="addIntroduction">{{ bt('add') }}</el-button>
               </div>
               <div v-for="(_, index) in form.introduction" :key="index" class="dynamic-row">
-                <el-input v-model="form.introduction![index]" type="textarea" :rows="2" placeholder="Paragraph" />
+                <el-input v-model="form.introduction![index]" type="textarea" :rows="2" :placeholder="bt('paragraph')" />
                 <row-actions :index="index" :length="form.introduction?.length || 0" @move-up="moveIntroduction(index, -1)" @move-down="moveIntroduction(index, 1)" @remove="removeIntroduction(index)" />
               </div>
             </div>
           </el-tab-pane>
 
-          <el-tab-pane label="Highlights" name="highlights">
+          <el-tab-pane :label="bt('highlights')" name="highlights">
             <div class="content-section">
               <div class="section-title">
-                <span>Highlights</span>
-                <el-button type="primary" link icon="Plus" @click="addHighlight">Add</el-button>
+                <span>{{ bt('highlights') }}</span>
+                <el-button type="primary" link icon="Plus" @click="addHighlight">{{ bt('add') }}</el-button>
               </div>
               <div v-for="(item, index) in form.highlights" :key="index" class="dynamic-row three-col">
-                <el-select v-model="item.icon" placeholder="Emoji" filterable allow-create default-first-option clearable>
+                <el-select v-model="item.icon" :placeholder="bt('emoji')" filterable allow-create default-first-option clearable>
                   <el-option v-for="emoji in emojiOptions" :key="emoji.value" :label="`${emoji.value} ${emoji.label}`" :value="emoji.value" />
                 </el-select>
-                <el-input v-model="item.title" placeholder="Title" />
-                <el-input v-model="item.description" type="textarea" :rows="2" placeholder="Description" />
+                <el-input v-model="item.title" :placeholder="bt('title')" />
+                <el-input v-model="item.description" type="textarea" :rows="2" :placeholder="bt('description')" />
                 <row-actions :index="index" :length="form.highlights?.length || 0" @move-up="moveHighlight(index, -1)" @move-down="moveHighlight(index, 1)" @remove="removeHighlight(index)" />
               </div>
             </div>
           </el-tab-pane>
 
-          <el-tab-pane label="Cities & Attractions" name="cities">
+          <el-tab-pane :label="bt('citiesAttractions')" name="cities">
             <div class="content-section">
               <div class="section-title">
-                <span>Cities & Attractions</span>
-                <el-button type="primary" link icon="Plus" @click="addCity">Add</el-button>
+                <span>{{ bt('citiesAttractions') }}</span>
+                <el-button type="primary" link icon="Plus" @click="addCity">{{ bt('add') }}</el-button>
               </div>
               <div v-for="(item, index) in form.cities" :key="index" class="dynamic-row city-row">
-                <el-input v-model="item.label" placeholder="Label" />
-                <el-input v-model="item.name" placeholder="Name" />
+                <el-input v-model="item.label" :placeholder="bt('label')" />
+                <el-input v-model="item.name" :placeholder="bt('name')" />
                 <image-upload v-model="item.image" :limit="1" />
-                <el-input v-model="item.description" type="textarea" :rows="2" placeholder="Description" />
+                <el-input v-model="item.description" type="textarea" :rows="2" :placeholder="bt('description')" />
                 <row-actions :index="index" :length="form.cities?.length || 0" @move-up="moveCity(index, -1)" @move-down="moveCity(index, 1)" @remove="removeCity(index)" />
               </div>
             </div>
           </el-tab-pane>
 
-          <el-tab-pane label="Practical Info" name="practical">
+          <el-tab-pane :label="bt('practicalInfo')" name="practical">
             <div class="content-section">
               <div class="section-title">
-                <span>Practical Info</span>
-                <el-button type="primary" link icon="Plus" @click="addPracticalInfo">Add</el-button>
+                <span>{{ bt('practicalInfo') }}</span>
+                <el-button type="primary" link icon="Plus" @click="addPracticalInfo">{{ bt('add') }}</el-button>
               </div>
               <div v-for="(item, index) in form.practicalInfo" :key="index" class="dynamic-row two-col">
-                <el-input v-model="item.title" placeholder="Title" />
-                <el-input v-model="item.content" type="textarea" :rows="2" placeholder="Content" />
+                <el-input v-model="item.title" :placeholder="bt('title')" />
+                <el-input v-model="item.content" type="textarea" :rows="2" :placeholder="bt('content')" />
                 <row-actions :index="index" :length="form.practicalInfo?.length || 0" @move-up="movePracticalInfo(index, -1)" @move-down="movePracticalInfo(index, 1)" @remove="removePracticalInfo(index)" />
               </div>
             </div>
@@ -209,9 +209,9 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" @click="submitForm(0)">Save Draft</el-button>
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm(1)">Publish</el-button>
-          <el-button @click="cancel">Cancel</el-button>
+          <el-button :loading="buttonLoading" @click="submitForm(0)">{{ bt('saveDraft') }}</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm(1)">{{ bt('publish') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -248,7 +248,9 @@ import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
 import { parseTime } from '@/utils/ruoyi';
+import { useBoxhillI18n } from '../useBoxhillI18n';
 
+const { bt } = useBoxhillI18n();
 const contentList = ref<DestinationPageContentVO[]>([]);
 const destinationOptions = ref<DestinationVO[]>([]);
 const currencyOptions = ref<DictDataVO[]>([]);
@@ -305,7 +307,7 @@ const data = reactive<PageData<DestinationPageContentForm, DestinationPageConten
     params: {}
   },
   rules: {
-    destinationId: [{ required: true, message: 'Country is required', trigger: 'change' }]
+    destinationId: [{ required: true, message: bt('countryRequired'), trigger: 'change' }]
   }
 });
 
@@ -325,13 +327,13 @@ const RowActions = defineComponent({
   setup(props, { emit }) {
     return () =>
       h('div', { class: 'row-actions' }, [
-        h(ElTooltip, { content: 'Move up', placement: 'top' }, () =>
+        h(ElTooltip, { content: bt('moveUp'), placement: 'top' }, () =>
           h(ElButton, { icon: 'ArrowUp', circle: true, disabled: props.index === 0, onClick: () => emit('moveUp') })
         ),
-        h(ElTooltip, { content: 'Move down', placement: 'top' }, () =>
+        h(ElTooltip, { content: bt('moveDown'), placement: 'top' }, () =>
           h(ElButton, { icon: 'ArrowDown', circle: true, disabled: props.index >= props.length - 1, onClick: () => emit('moveDown') })
         ),
-        h(ElTooltip, { content: 'Remove', placement: 'top' }, () =>
+        h(ElTooltip, { content: bt('remove'), placement: 'top' }, () =>
           h(ElButton, { icon: 'Delete', circle: true, type: 'danger', onClick: () => emit('remove') })
         )
       ]);
@@ -356,7 +358,7 @@ const getDictLabel = (options: DictDataVO[], value?: string) => {
 
 const getMissingText = (row: DestinationPageContentVO) => {
   const items = row.missingItems || [];
-  return items.length ? `Missing: ${items.join(', ')}` : 'Ready to publish';
+  return items.length ? bt('missingItems', { items: items.join(', ') }) : bt('readyToPublish');
 };
 
 const getDestinationOptionLabel = (row: DestinationVO) => `${row.nameEn || row.name} / ${row.name}`;
@@ -430,7 +432,7 @@ const handleAdd = async () => {
   activeTab.value = 'overview';
   normalizeFormArrays();
   await Promise.all([searchDestinationOptions(), loadDictOptions()]);
-  showDialog('Add Destination Page Content');
+  showDialog(bt('addDestinationPageContent'));
 };
 
 const handleUpdate = async (row: unknown) => {
@@ -441,7 +443,7 @@ const handleUpdate = async (row: unknown) => {
   Object.assign(form.value, res.data);
   normalizeFormArrays();
   await Promise.all([ensureDestinationOption(res.data), loadDictOptions()]);
-  showDialog('Edit Destination Page Content');
+  showDialog(bt('editDestinationPageContent'));
 };
 
 const submitForm = (status: number) => {
@@ -451,7 +453,7 @@ const submitForm = (status: number) => {
     const payload = { ...form.value, status };
     const request = payload.id ? updateDestinationPageContent(payload) : addDestinationPageContent(payload);
     await request.finally(() => (buttonLoading.value = false));
-    modal.msgSuccess(status === 1 ? 'Published' : 'Saved');
+    modal.msgSuccess(status === 1 ? bt('published') : bt('saved'));
     closeDialog();
     await getList();
   });
@@ -460,16 +462,16 @@ const submitForm = (status: number) => {
 const handleChangeStatus = async (row: DestinationPageContentVO) => {
   const nextStatus = Number(row.status) === 1 ? 0 : 1;
   await changeDestinationPageContentStatus(row.id, nextStatus);
-  modal.msgSuccess(nextStatus === 1 ? 'Published' : 'Unpublished');
+  modal.msgSuccess(nextStatus === 1 ? bt('published') : bt('unpublished'));
   await getList();
 };
 
 const handleDelete = async (row?: unknown) => {
   const current = row ? toRow(row) : undefined;
   const selectedIds = current?.id || ids.value;
-  await modal.confirm('Confirm delete Destination Page Content "' + selectedIds + '"?');
+  await modal.confirm(bt('confirmDeleteDestinationPageContent', { ids: selectedIds }));
   await delDestinationPageContent(selectedIds);
-  modal.msgSuccess('Deleted');
+  modal.msgSuccess(bt('deleted'));
   await getList();
 };
 

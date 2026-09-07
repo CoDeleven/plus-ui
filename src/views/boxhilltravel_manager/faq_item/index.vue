@@ -4,31 +4,31 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>FAQ Item filters</h3></div>
+            <div><h3>{{ bt('faqItemFilters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-          <el-form-item label="Module" prop="module">
-            <el-select v-model="queryParams.module" placeholder="Module" clearable @change="handleQueryModuleChange">
+          <el-form-item :label="bt('module')" prop="module">
+            <el-select v-model="queryParams.module" :placeholder="bt('module')" clearable @change="handleQueryModuleChange">
               <el-option v-for="dict in holidays_faq_module" :key="dict.value" :label="dict.label" :value="toModuleValue(dict.value)" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Group" prop="groupId">
-            <el-select v-model="queryParams.groupId" placeholder="Group" clearable filterable>
+          <el-form-item :label="bt('group')" prop="groupId">
+            <el-select v-model="queryParams.groupId" :placeholder="bt('group')" clearable filterable>
               <el-option v-for="group in queryGroupOptions" :key="group.id" :label="group.groupName" :value="group.id" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Question" prop="question">
-            <el-input v-model="queryParams.question" placeholder="Question" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="bt('question')" prop="question">
+            <el-input v-model="queryParams.question" :placeholder="bt('question')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="Status" prop="status">
-            <el-select v-model="queryParams.status" placeholder="Status" clearable>
+          <el-form-item :label="bt('status')" prop="status">
+            <el-select v-model="queryParams.status" :placeholder="bt('status')" clearable>
               <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">Search</el-button>
-            <el-button icon="Refresh" @click="resetQuery">Reset</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -38,12 +38,12 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>FAQ Items</h3>
+            <h3>{{ bt('faqItems') }}</h3>
           </div>
           <div class="toolbar-actions">
-            <el-button v-hasPermi="['boxhilltravel_manager:faq_item:add']" type="primary" plain icon="Plus" @click="handleAdd">Add</el-button>
-            <el-button v-hasPermi="['boxhilltravel_manager:faq_item:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">Edit</el-button>
-            <el-button v-hasPermi="['boxhilltravel_manager:faq_item:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">Delete</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:faq_item:add']" type="primary" plain icon="Plus" @click="handleAdd">{{ bt('add') }}</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:faq_item:edit']" type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()">{{ bt('edit') }}</el-button>
+            <el-button v-hasPermi="['boxhilltravel_manager:faq_item:remove']" type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()">{{ bt('delete') }}</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -51,16 +51,16 @@
 
       <el-table v-loading="loading" border class="data-table" :data="faqItemList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="Module" align="center" prop="module" width="150">
+        <el-table-column :label="bt('module')" align="center" prop="module" width="150">
           <template #default="scope">
             <dict-tag :options="holidays_faq_module" :value="scope.row.module" />
           </template>
         </el-table-column>
-        <el-table-column label="Group" align="center" prop="groupName" min-width="160" show-overflow-tooltip />
-        <el-table-column label="Question" align="center" prop="question" min-width="240" show-overflow-tooltip />
-        <el-table-column label="Answer" align="center" prop="answer" min-width="280" show-overflow-tooltip />
-        <el-table-column label="Sort" align="center" prop="sortOrder" width="90" />
-        <el-table-column label="Status" align="center" prop="status" width="110">
+        <el-table-column :label="bt('group')" align="center" prop="groupName" min-width="160" show-overflow-tooltip />
+        <el-table-column :label="bt('question')" align="center" prop="question" min-width="240" show-overflow-tooltip />
+        <el-table-column :label="bt('answer')" align="center" prop="answer" min-width="280" show-overflow-tooltip />
+        <el-table-column :label="bt('sort')" align="center" prop="sortOrder" width="90" />
+        <el-table-column :label="bt('status')" align="center" prop="status" width="110">
           <template #default="scope">
             <el-switch
               v-model="scope.row.status"
@@ -70,13 +70,13 @@
             />
           </template>
         </el-table-column>
-        <el-table-column label="Remark" align="center" prop="remark" min-width="150" show-overflow-tooltip />
-        <el-table-column label="Actions" align="center" fixed="right" width="130">
+        <el-table-column :label="bt('remark')" align="center" prop="remark" min-width="150" show-overflow-tooltip />
+        <el-table-column :label="bt('actions')" align="center" fixed="right" width="130">
           <template #default="scope">
-            <el-tooltip content="Edit" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:faq_item:edit']" link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
             </el-tooltip>
-            <el-tooltip content="Delete" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:faq_item:remove']" link type="primary" icon="Delete" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
@@ -88,31 +88,31 @@
 
     <el-dialog v-model="dialog.visible" :title="dialog.title" width="720px" append-to-body>
       <el-form ref="faqItemFormRef" :model="form" :rules="rules" label-width="110px">
-        <el-form-item label="Group" prop="groupId">
-          <el-select v-model="form.groupId" placeholder="Group" filterable @change="handleFormGroupChange">
+        <el-form-item :label="bt('group')" prop="groupId">
+          <el-select v-model="form.groupId" :placeholder="bt('group')" filterable @change="handleFormGroupChange">
             <el-option v-for="group in formGroupOptions" :key="group.id" :label="formatGroupLabel(group)" :value="group.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="Question" prop="question">
-          <el-input v-model="form.question" type="textarea" :rows="2" maxlength="500" show-word-limit placeholder="Question" />
+        <el-form-item :label="bt('question')" prop="question">
+          <el-input v-model="form.question" type="textarea" :rows="2" maxlength="500" show-word-limit :placeholder="bt('question')" />
         </el-form-item>
-        <el-form-item label="Answer" prop="answer">
-          <el-input v-model="form.answer" type="textarea" :rows="6" placeholder="Answer, HTML supported" />
+        <el-form-item :label="bt('answer')" prop="answer">
+          <el-input v-model="form.answer" type="textarea" :rows="6" :placeholder="bt('answerHtmlSupported')" />
         </el-form-item>
-        <el-form-item label="Sort" prop="sortOrder">
+        <el-form-item :label="bt('sort')" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" controls-position="right" :min="0" />
         </el-form-item>
-        <el-form-item label="Status" prop="status">
+        <el-form-item :label="bt('status')" prop="status">
           <el-switch v-model="form.status" :active-value="statusActiveValue" :inactive-value="statusInactiveValue" />
         </el-form-item>
-        <el-form-item label="Remark" prop="remark">
-          <el-input v-model="form.remark" type="textarea" :rows="3" placeholder="Remark" />
+        <el-form-item :label="bt('remark')" prop="remark">
+          <el-input v-model="form.remark" type="textarea" :rows="3" :placeholder="bt('remark')" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">Confirm</el-button>
-          <el-button @click="cancel">Cancel</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -141,13 +141,14 @@ import { useDict } from '@/utils/dict';
 
 const { holidays_faq_module } = toRefs<any>(useDict('holidays_faq_module'));
 
+const { bt } = useBoxhillI18n();
 const defaultModule = 1;
 const statusActiveValue = '1';
 const statusInactiveValue = '0';
-const statusOptions = [
-  { label: 'Enabled', value: statusActiveValue },
-  { label: 'Disabled', value: statusInactiveValue }
-];
+const statusOptions = computed(() => [
+  { label: bt('enabled'), value: statusActiveValue },
+  { label: bt('disabled'), value: statusInactiveValue }
+]);
 
 const faqItemList = ref<Faq_itemVO[]>([]);
 const queryGroupOptions = ref<Faq_groupVO[]>([]);
@@ -199,8 +200,8 @@ const data = reactive<PageData<Faq_itemForm, Faq_itemQuery>>({
     params: {}
   },
   rules: {
-    groupId: [{ required: true, message: 'Group is required', trigger: 'change' }],
-    question: [{ required: true, message: 'Question is required', trigger: 'blur' }]
+    groupId: [{ required: true, message: bt('groupRequired'), trigger: 'change' }],
+    question: [{ required: true, message: bt('questionRequired'), trigger: 'blur' }]
   }
 });
 
@@ -273,7 +274,7 @@ const { resetQuery } = useSearchReset({
 });
 
 const handleAdd = async () => {
-  openDialog('Add FAQ Item');
+  openDialog(bt('addFaqItem'));
   await loadFormGroupOptions();
 };
 
@@ -284,7 +285,7 @@ const handleUpdate = async (row?: Partial<Faq_itemVO>) => {
   Object.assign(form.value, res.data);
   await loadFormGroupOptions();
   syncFormModuleByGroup();
-  showDialog('Edit FAQ Item');
+  showDialog(bt('editFaqItem'));
 };
 
 const submitForm = () => {
@@ -298,7 +299,7 @@ const submitForm = () => {
       } else {
         await addFaq_item(form.value);
       }
-      modal.msgSuccess('Saved');
+      modal.msgSuccess(bt('saved'));
       closeDialog();
       await getList();
     } finally {
@@ -314,18 +315,18 @@ const cancel = () => {
 
 const handleDelete = async (row?: Partial<Faq_itemVO>) => {
   const selectedIds = row?.id || ids.value;
-  await modal.confirm('Delete selected FAQ item(s): ' + selectedIds + '?');
+  await modal.confirm(bt('confirmDeleteFaqItem', { ids: selectedIds }));
   await delFaq_item(selectedIds);
-  modal.msgSuccess('Deleted');
+  modal.msgSuccess(bt('deleted'));
   await getList();
 };
 
 const handleStatusChange = async (row: Partial<Faq_itemVO>) => {
-  const text = row.status === statusActiveValue ? 'enable' : 'disable';
+  const text = row.status === statusActiveValue ? bt('enableAction') : bt('disableAction');
   try {
-    await modal.confirm('Confirm to ' + text + ' this FAQ item?');
+    await modal.confirm(bt('confirmFaqItemStatus', { action: text }));
     await changeFaq_itemStatus(row.id, row.status);
-    modal.msgSuccess('Updated');
+    modal.msgSuccess(bt('updated'));
   } catch (err) {
     row.status = row.status === statusActiveValue ? statusInactiveValue : statusActiveValue;
   }

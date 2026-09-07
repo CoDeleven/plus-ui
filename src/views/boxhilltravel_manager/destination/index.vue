@@ -4,7 +4,7 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>筛选条件</h3></div>
+            <div><h3>{{ bt('filters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
@@ -13,21 +13,21 @@
               v-model="queryParams.nameEn"
               v-model:select-value="queryParams.level"
               :options="destinationLevelOptions"
-              input-placeholder="请输入目的地英文名称"
-              select-placeholder="范围"
+              :input-placeholder="bt('enterDestinationEnglishName')"
+              :select-placeholder="bt('scope')"
               select-width="120px"
               @enter="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="状态" prop="status">
-            <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
-              <el-option label="启用" :value="1" />
-              <el-option label="禁用" :value="0" />
+          <el-form-item :label="bt('status')" prop="status">
+            <el-select v-model="queryParams.status" :placeholder="bt('selectStatus')" clearable>
+              <el-option :label="bt('enabledStatus')" :value="1" />
+              <el-option :label="bt('disabledStatus')" :value="0" />
             </el-select>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-            <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -37,7 +37,7 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>目的地分类列表</h3>
+            <h3>{{ bt('destinationList') }}</h3>
           </div>
           <div class="toolbar-actions">
             <el-button
@@ -47,8 +47,7 @@
               icon="Plus"
               @click="handleAdd()"
             >
-              新增
-            </el-button>
+              {{ bt('add') }}</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -64,30 +63,30 @@
         :load="loadDestinationChildren"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
-        <el-table-column label="目的地名称" prop="name" min-width="100" show-overflow-tooltip />
-        <el-table-column label="层级" align="center" prop="level" width="120" >
+        <el-table-column :label="bt('destinationName')" prop="name" min-width="100" show-overflow-tooltip />
+        <el-table-column :label="bt('level')" align="center" prop="level" width="120" >
            <template #default="scope">
             <span>{{ scope.row.level === 1 ? 'Continent' : scope.row.level === 2 ? 'Country' : scope.row.level === 3 ? 'City' : scope.row.parentId }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="封面图" align="center" prop="imageUrl" width="100">
+        <el-table-column :label="bt('coverImage')" align="center" prop="imageUrl" width="100">
           <template #default="scope">
             <image-preview v-if="scope.row.imageUrl" :src="scope.row.imageUrl" :width="50" :height="50" />
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="描述" align="center" prop="description" min-width="180" show-overflow-tooltip />
-        <el-table-column label="排序" align="center" prop="sort" width="90" />
-        <el-table-column label="状态" align="center" prop="status" width="100">
+        <el-table-column :label="bt('description')" align="center" prop="description" min-width="180" show-overflow-tooltip />
+        <el-table-column :label="bt('sortOrder')" align="center" prop="sort" width="90" />
+        <el-table-column :label="bt('status')" align="center" prop="status" width="100">
           <template #default="scope">
-            <el-tag v-if="Number(scope.row.status) === 1" type="success">启用</el-tag>
-            <el-tag v-else-if="Number(scope.row.status) === 0" type="danger">禁用</el-tag>
+            <el-tag v-if="Number(scope.row.status) === 1" type="success">{{ bt('enabledStatus') }}</el-tag>
+            <el-tag v-else-if="Number(scope.row.status) === 0" type="danger">{{ bt('disabledStatus') }}</el-tag>
             <span v-else>-</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="150">
+        <el-table-column :label="bt('actions')" align="center" class-name="small-padding fixed-width" width="150">
           <template #default="scope">
-            <el-tooltip content="修改" placement="top">
+            <el-tooltip :content="bt('edit')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:destination:edit']"
                 link
@@ -96,7 +95,7 @@
                 @click="handleUpdate(scope.row)"
               />
             </el-tooltip>
-            <el-tooltip content="新增子级" placement="top">
+            <el-tooltip :content="bt('addChild')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:destination:add']"
                 link
@@ -105,7 +104,7 @@
                 @click="handleAdd(scope.row)"
               />
             </el-tooltip>
-            <el-tooltip content="删除" placement="top">
+            <el-tooltip :content="bt('delete')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:destination:remove']"
                 link
@@ -119,22 +118,22 @@
       </el-table>
     </el-card>
 
-    <el-dialog v-model="dialog.visible" :title="dialog.title" width="500px" append-to-body>
-      <el-form ref="destinationFormRef" :model="form" :rules="rules" label-width="90px">
-        <el-form-item label="目的地名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入目的地名称" />
+    <el-dialog v-model="dialog.visible" :title="dialog.title" width="600px" append-to-body>
+      <el-form ref="destinationFormRef" :model="form" :rules="rules" label-width="120px">
+        <el-form-item :label="bt('destinationName')" prop="name">
+          <el-input v-model="form.name" :placeholder="bt('enterDestinationName')" />
         </el-form-item>
-        <el-form-item label="英文名称" prop="nameEn">
-          <el-input v-model="form.nameEn" placeholder="请输入目的地英文名称" />
+        <el-form-item :label="bt('englishName')" prop="nameEn">
+          <el-input v-model="form.nameEn" :placeholder="bt('enterDestinationEnglishName')" />
         </el-form-item>
-        <el-form-item label="父级目的地" prop="parentId">
+        <el-form-item :label="bt('parentDestination')" prop="parentId">
           <el-tree-select
             v-model="form.parentId"
             :data="destinationOptions"
             :props="{ label: 'label', children: 'children', isLeaf: 'isLeaf' }"
             value-key="id"
             node-key="id"
-            placeholder="请选择父级目的地"
+            :placeholder="bt('selectParentDestination')"
             check-strictly
             filterable
             clearable
@@ -143,29 +142,48 @@
             :cache-data="destinationCacheOptions"
           />
         </el-form-item>
-        <el-form-item label="层级" prop="level">
-          <el-input-number v-model="form.level" controls-position="right" />
+        <el-form-item :label="bt('level')" prop="level">
+          <div class="level-segmented" role="radiogroup" :aria-label="bt('level')">
+            <el-button
+              :type="form.level === 1 ? 'primary' : 'default'"
+              :class="{ 'is-active': form.level === 1 }"
+              @click="form.level = 1"
+            >
+              {{ bt('continent') }}</el-button>
+            <el-button
+              :type="form.level === 2 ? 'primary' : 'default'"
+              :class="{ 'is-active': form.level === 2 }"
+              @click="form.level = 2"
+            >
+              {{ bt('country') }}</el-button>
+            <el-button
+              :type="form.level === 3 ? 'primary' : 'default'"
+              :class="{ 'is-active': form.level === 3 }"
+              @click="form.level = 3"
+            >
+              {{ bt('city') }}</el-button>
+          </div>
         </el-form-item>
-        <el-form-item label="封面图" prop="image">
+        <el-form-item :label="bt('coverImage')" prop="image">
           <image-upload v-model="form.image" />
         </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input v-model="form.description" type="textarea" placeholder="请输入描述" />
+        <el-form-item :label="bt('description')" prop="description">
+          <el-input v-model="form.description" type="textarea" :placeholder="bt('enterDescription')" />
         </el-form-item>
-        <el-form-item label="排序" prop="sort">
+        <el-form-item :label="bt('sortOrder')" prop="sort">
           <el-input-number v-model="form.sort" controls-position="right" />
         </el-form-item>
-        <el-form-item label="状态" prop="status">
+        <el-form-item :label="bt('status')" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio :value="1">启用</el-radio>
-            <el-radio :value="0">禁用</el-radio>
+            <el-radio :value="1">{{ bt('enabledStatus') }}</el-radio>
+            <el-radio :value="0">{{ bt('disabledStatus') }}</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button :loading="buttonLoading" type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <el-button :loading="buttonLoading" type="primary" @click="submitForm">{{ bt('confirm') }}</el-button>
+          <el-button @click="cancel">{{ bt('cancel') }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -173,6 +191,8 @@
 </template>
 
 <script setup name="Destination" lang="ts">
+
+import { useBoxhillI18n } from '../useBoxhillI18n';
 import type { LoadFunction } from 'element-plus';
 import SearchSelectInput, { type SearchSelectInputOption } from '@/components/SearchSelectInput/index.vue';
 import {
@@ -188,6 +208,8 @@ import { useFormDialog } from '@/hooks/dialog/useFormDialog';
 import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import modal from '@/plugins/modal';
+
+const { bt } = useBoxhillI18n();
 
 type DestinationTableRow = DestinationVO & {
   children?: DestinationTableRow[];
@@ -209,9 +231,9 @@ const { loading, setLoading, withLoading } = useLoading(true);
 const { showSearch } = useSearchToggle();
 
 const destinationLevelOptions: SearchSelectInputOption[] = [
-  { label: '洲', value: 1 },
-  { label: '国家', value: 2 },
-  { label: '城市', value: 3 }
+  { label: bt('continent'), value: 1 },
+  { label: bt('country'), value: 2 },
+  { label: bt('city'), value: 3 }
 ];
 
 const queryFormRef = ref<ElFormInstance>();
@@ -240,10 +262,10 @@ const data = reactive<PageData<DestinationForm, DestinationQuery>>({
     params: {}
   },
   rules: {
-    name: [{ required: true, message: '目的地名称不能为空', trigger: 'blur' }],
-    parentId: [{ required: true, message: '父级目的地不能为空', trigger: 'change' }],
-    level: [{ required: true, message: '层级不能为空', trigger: 'change' }],
-    status: [{ required: true, message: '状态不能为空', trigger: 'change' }]
+    name: [{ required: true, message: bt('destinationNameRequired'), trigger: 'blur' }],
+    parentId: [{ required: true, message: bt('parentDestinationRequired'), trigger: 'change' }],
+    level: [{ required: true, message: bt('levelRequired'), trigger: 'change' }],
+    status: [{ required: true, message: bt('text004'), trigger: 'change' }]
   }
 });
 
@@ -308,7 +330,7 @@ const getChildLayerQuery = (parentId: string | number): DestinationQuery => ({
   params: {}
 });
 
-/** 查询目的地分类树表 */
+
 const getList = async () => {
   await withLoading(async () => {
     const res = await listDestination(getRootQuery());
@@ -316,7 +338,7 @@ const getList = async () => {
   });
 };
 
-/** 展开时按父级加载下一层 */
+
 const loadDestinationChildren = async (
   row: DestinationTableRow,
   _treeNode: unknown,
@@ -326,7 +348,7 @@ const loadDestinationChildren = async (
   resolve(normalizeDestinationRows(res.data?.rows || []));
 };
 
-/** 查询父级目的地下拉树 */
+
 const getTreeselect = async () => {
   const res = await listDestination({
     parentId: 0,
@@ -336,7 +358,7 @@ const getTreeselect = async () => {
   destinationOptions.value = [
     {
       id: 0,
-      label: '顶级目的地',
+      label: bt('topDestination'),
       children: (res.data?.rows || []).map(toDestinationOption),
       isLeaf: false
     }
@@ -397,7 +419,7 @@ const cancel = () => {
   closeDialog();
 };
 
-/** 搜索按钮操作 */
+
 const handleQuery = () => {
   getList();
 };
@@ -414,15 +436,15 @@ const { resetQuery } = useSearchReset({
   }
 });
 
-/** 新增按钮操作 */
+
 const handleAdd = async (row?: Partial<DestinationTableRow>) => {
-  openDialog('添加目的地分类');
+  openDialog(bt('addDestination'));
   await getTreeselect();
   form.value.parentId = row?.id ?? 0;
   cacheDestinationOption(row);
 };
 
-/** 修改按钮操作 */
+
 const handleUpdate = async (row: Partial<DestinationTableRow>) => {
   if (!row.id) {
     return;
@@ -432,10 +454,10 @@ const handleUpdate = async (row: Partial<DestinationTableRow>) => {
   const res = await getDestination(row.id);
   Object.assign(form.value, res.data);
   await cacheDestinationOptionById(res.data?.parentId);
-  showDialog('修改目的地分类');
+  showDialog(bt('editDestination'));
 };
 
-/** 提交按钮 */
+
 const submitForm = () => {
   destinationFormRef.value?.validate(async (valid: boolean) => {
     if (valid) {
@@ -445,22 +467,22 @@ const submitForm = () => {
       } else {
         await addDestination(form.value).finally(() => (buttonLoading.value = false));
       }
-      modal.msgSuccess('操作成功');
+      modal.msgSuccess(bt('operationSuccess'));
       closeDialog();
       await getList();
     }
   });
 };
 
-/** 删除按钮操作 */
+
 const handleDelete = async (row: Partial<DestinationTableRow>) => {
   if (!row.id) {
     return;
   }
-  await modal.confirm(`是否确认删除目的地分类"${row.name || row.id}"？`);
+  await modal.confirm(bt('confirmDeleteDestination', { name: row.name || row.id }));
   setLoading(true);
   await delDestination(row.id).finally(() => setLoading(false));
-  modal.msgSuccess('删除成功');
+  modal.msgSuccess(bt('deleteSuccess'));
   await getList();
 };
 
@@ -468,3 +490,29 @@ onMounted(() => {
   getList();
 });
 </script>
+
+<style scoped>
+.level-segmented {
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.level-segmented :deep(.el-button) {
+  margin: 0;
+  border-radius: 0 !important;
+}
+
+.level-segmented :deep(.el-button + .el-button) {
+  margin-left: -1px;
+}
+
+.level-segmented :deep(.el-button:first-child) {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.level-segmented :deep(.el-button:last-child) {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+</style>

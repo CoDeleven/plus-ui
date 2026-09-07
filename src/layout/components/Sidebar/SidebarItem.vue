@@ -11,7 +11,7 @@
         <el-menu-item :index="resolvePath(onlyOneChild.path)" :class="{ 'submenu-title-noDropdown': !isNest }">
           <svg-icon :icon-class="onlyOneChild.meta.icon || (item.meta && item.meta.icon)" />
           <template #title>
-            <span class="menu-title" :title="hasTitle(onlyOneChild.meta.title)">{{ onlyOneChild.meta.title }}</span>
+            <span class="menu-title" :title="hasTitle(routeTitle(onlyOneChild.meta.title))">{{ routeTitle(onlyOneChild.meta.title) }}</span>
           </template>
         </el-menu-item>
       </app-link>
@@ -27,7 +27,7 @@
     >
       <template v-if="item.meta" #title>
         <svg-icon :icon-class="item.meta ? item.meta.icon : ''" />
-        <span class="menu-title" :title="hasTitle(item.meta?.title)">{{ item.meta?.title }}</span>
+        <span class="menu-title" :title="hasTitle(routeTitle(item.meta?.title))">{{ routeTitle(item.meta?.title) }}</span>
       </template>
 
       <sidebar-item
@@ -46,6 +46,7 @@
 <script setup lang="ts">
 import { RouteRecordRaw } from 'vue-router';
 import { getNormalPath } from '@/utils/ruoyi';
+import { translateRouteTitle } from '@/utils/i18n';
 import { isExternal } from '@/utils/validate';
 import AppLink from './Link.vue';
 
@@ -118,5 +119,9 @@ const hasTitle = (title: string | undefined): string => {
     return '';
   }
   return title;
+};
+
+const routeTitle = (title: unknown): string => {
+  return title ? translateRouteTitle(String(title)) : '';
 };
 </script>

@@ -4,38 +4,38 @@
       <el-card shadow="hover" class="search-panel" :class="{ 'is-collapsed': !showSearch }">
         <template #header>
           <div class="panel-heading search-panel-toggle" @click.stop="showSearch = !showSearch">
-            <div><h3>Order filters</h3></div>
+            <div><h3>{{ bt('orderFilters') }}</h3></div>
           </div>
         </template>
         <el-form ref="queryFormRef" :model="queryParams" :inline="true" class="query-form">
-          <el-form-item label="Order No" prop="orderNo">
-            <el-input v-model="queryParams.orderNo" placeholder="Order No" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="bt('orderNo')" prop="orderNo">
+            <el-input v-model="queryParams.orderNo" :placeholder="bt('orderNo')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="Customer" prop="customerKeyword">
-            <el-input v-model="queryParams.customerKeyword" placeholder="Email / username" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="bt('customer')" prop="customerKeyword">
+            <el-input v-model="queryParams.customerKeyword" :placeholder="bt('emailUsername')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="Tour" prop="tourName">
-            <el-input v-model="queryParams.tourName" placeholder="Tour name" clearable @keyup.enter="handleQuery" />
+          <el-form-item :label="bt('tour')" prop="tourName">
+            <el-input v-model="queryParams.tourName" :placeholder="bt('tourName')" clearable @keyup.enter="handleQuery" />
           </el-form-item>
-          <el-form-item label="Status" prop="status">
-            <el-select v-model="queryParams.status" placeholder="Status" clearable>
+          <el-form-item :label="bt('status')" prop="status">
+            <el-select v-model="queryParams.status" :placeholder="bt('status')" clearable>
               <el-option v-for="item in orderStatusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-form-item>
-          <el-form-item label="Created">
+          <el-form-item :label="bt('created')">
             <el-date-picker
               v-model="dateRange"
               value-format="YYYY-MM-DD HH:mm:ss"
               type="daterange"
               range-separator="-"
-              start-placeholder="Start"
-              end-placeholder="End"
+              :start-placeholder="bt('start')"
+              :end-placeholder="bt('end')"
               :default-time="[new Date(2000, 1, 1, 0, 0, 0), new Date(2000, 1, 1, 23, 59, 59)]"
             />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="Search" @click="handleQuery">Search</el-button>
-            <el-button icon="Refresh" @click="resetQuery">Reset</el-button>
+            <el-button type="primary" icon="Search" @click="handleQuery">{{ bt('search') }}</el-button>
+            <el-button icon="Refresh" @click="resetQuery">{{ bt('reset') }}</el-button>
           </el-form-item>
         </el-form>
       </el-card>
@@ -45,7 +45,7 @@
       <template #header>
         <div class="toolbar-shell">
           <div class="table-heading">
-            <h3>Orders</h3>
+            <h3>{{ bt('orders') }}</h3>
           </div>
           <div class="toolbar-actions">
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
@@ -54,41 +54,41 @@
       </template>
 
       <el-table v-loading="loading" border class="data-table" :data="orderList">
-        <el-table-column label="Order No" align="center" prop="orderNo" min-width="180" show-overflow-tooltip />
-        <el-table-column label="Tour" align="center" prop="tourName" min-width="220" show-overflow-tooltip />
-        <el-table-column label="Departure" align="center" prop="departureDate" width="130">
+        <el-table-column :label="bt('orderNo')" align="center" prop="orderNo" min-width="180" show-overflow-tooltip />
+        <el-table-column :label="bt('tour')" align="center" prop="tourName" min-width="220" show-overflow-tooltip />
+        <el-table-column :label="bt('departure')" align="center" prop="departureDate" width="130">
           <template #default="scope">
             <span>{{ parseTime(scope.row.departureDate, '{y}-{m}-{d}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Customer" align="center" min-width="210" show-overflow-tooltip>
+        <el-table-column :label="bt('customer')" align="center" min-width="210" show-overflow-tooltip>
           <template #default="scope">
             <div>{{ scope.row.customerEmail || scope.row.customerUsername }}</div>
             <div class="muted">{{ scope.row.customerUsername }}</div>
           </template>
         </el-table-column>
-        <el-table-column label="Travellers" align="center" prop="travelerCount" width="110" />
-        <el-table-column label="Amount" align="center" width="140">
+        <el-table-column :label="bt('travellers')" align="center" prop="travelerCount" width="110" />
+        <el-table-column :label="bt('amount')" align="center" width="140">
           <template #default="scope">
             <span>{{ formatMoney(scope.row.totalAmount, scope.row.currency) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Status" align="center" prop="status" width="150">
+        <el-table-column :label="bt('status')" align="center" prop="status" width="150">
           <template #default="scope">
             <el-tag :type="statusTagType(scope.row.status)">{{ orderStatusLabel(scope.row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Created" align="center" prop="createTime" width="170">
+        <el-table-column :label="bt('created')" align="center" prop="createTime" width="170">
           <template #default="scope">
             <span>{{ parseTime(scope.row.createTime) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Action" align="center" width="150" fixed="right">
+        <el-table-column :label="bt('action')" align="center" width="150" fixed="right">
           <template #default="scope">
-            <el-tooltip content="View" placement="top">
+            <el-tooltip :content="bt('view')" placement="top">
               <el-button v-hasPermi="['boxhilltravel_manager:order:query']" link type="primary" icon="View" @click="handleView(scope.row)" />
             </el-tooltip>
-            <el-tooltip v-if="canMarkCompleted(scope.row.status)" content="Mark traveled" placement="top">
+            <el-tooltip v-if="canMarkCompleted(scope.row.status)" :content="bt('markTraveled')" placement="top">
               <el-button
                 v-hasPermi="['boxhilltravel_manager:order:edit']"
                 link
@@ -110,7 +110,7 @@
       />
     </el-card>
 
-    <el-drawer v-model="detailVisible" title="Order detail" size="72%" append-to-body destroy-on-close>
+    <el-drawer v-model="detailVisible" :title="bt('orderDetail')" size="72%" append-to-body destroy-on-close>
       <div v-if="detail" class="order-detail">
         <el-card shadow="never">
           <template #header>
@@ -123,50 +123,50 @@
             </div>
           </template>
           <el-descriptions :column="3" border>
-            <el-descriptions-item label="Departure">{{ parseTime(detail.departureDate, '{y}-{m}-{d}') }}</el-descriptions-item>
-            <el-descriptions-item label="Return">{{ parseTime(detail.returnDate, '{y}-{m}-{d}') }}</el-descriptions-item>
-            <el-descriptions-item label="Travellers">{{ detail.travelerCount }}</el-descriptions-item>
-            <el-descriptions-item label="Created">{{ parseTime(detail.createTime) }}</el-descriptions-item>
-            <el-descriptions-item label="Terms">{{ detail.termsAccepted ? 'Accepted' : 'No' }}</el-descriptions-item>
-            <el-descriptions-item label="Payment">{{ detail.payment?.status || '-' }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('departure')">{{ parseTime(detail.departureDate, '{y}-{m}-{d}') }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('return')">{{ parseTime(detail.returnDate, '{y}-{m}-{d}') }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('travellers')">{{ detail.travelerCount }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('created')">{{ parseTime(detail.createTime) }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('terms')">{{ detail.termsAccepted ? bt('accepted') : bt('no') }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('payment')">{{ detail.payment?.status || '-' }}</el-descriptions-item>
           </el-descriptions>
         </el-card>
 
         <el-card shadow="never">
-          <template #header><h3>Booking account</h3></template>
+          <template #header><h3>{{ bt('bookingAccount') }}</h3></template>
           <el-descriptions :column="2" border>
-            <el-descriptions-item label="User ID">{{ detail.customerUserId }}</el-descriptions-item>
-            <el-descriptions-item label="Username">{{ detail.customerUsername }}</el-descriptions-item>
-            <el-descriptions-item label="Email">{{ detail.customerEmail }}</el-descriptions-item>
-            <el-descriptions-item label="Contact">{{ detail.contactName }}</el-descriptions-item>
-            <el-descriptions-item label="Contact email">{{ detail.contactEmail }}</el-descriptions-item>
-            <el-descriptions-item label="Phone">{{ detail.contactPhone }}</el-descriptions-item>
-            <el-descriptions-item label="Address" :span="2">
+            <el-descriptions-item :label="bt('userId')">{{ detail.customerUserId }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('username')">{{ detail.customerUsername }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('email')">{{ detail.customerEmail }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('contact')">{{ detail.contactName }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('contactEmail')">{{ detail.contactEmail }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('phone')">{{ detail.contactPhone }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('address')" :span="2">
               {{ compact([detail.contactAddress, detail.contactCity, detail.contactRegion, detail.contactPostalCode, detail.contactCountry]) }}
             </el-descriptions-item>
           </el-descriptions>
         </el-card>
 
         <el-card shadow="never">
-          <template #header><h3>Price & extras</h3></template>
+          <template #header><h3>{{ bt('priceExtras') }}</h3></template>
           <el-descriptions :column="4" border>
-            <el-descriptions-item label="Unit">{{ formatMoney(detail.unitPrice, detail.currency) }}</el-descriptions-item>
-            <el-descriptions-item label="Tour">{{ formatMoney(detail.tourAmount, detail.currency) }}</el-descriptions-item>
-            <el-descriptions-item label="Extras">{{ formatMoney(detail.extrasAmount, detail.currency) }}</el-descriptions-item>
-            <el-descriptions-item label="Total">{{ formatMoney(detail.totalAmount, detail.currency) }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('unit')">{{ formatMoney(detail.unitPrice, detail.currency) }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('tour')">{{ formatMoney(detail.tourAmount, detail.currency) }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('extras')">{{ formatMoney(detail.extrasAmount, detail.currency) }}</el-descriptions-item>
+            <el-descriptions-item :label="bt('totalAmount')">{{ formatMoney(detail.totalAmount, detail.currency) }}</el-descriptions-item>
           </el-descriptions>
           <el-table v-if="detail.extras?.length" :data="detail.extras" border class="mt-3">
-            <el-table-column label="Type" prop="extraType" width="180" />
-            <el-table-column label="Title" prop="title" min-width="180" show-overflow-tooltip />
-            <el-table-column label="Description" prop="description" min-width="220" show-overflow-tooltip />
-            <el-table-column label="Amount" width="120">
+            <el-table-column :label="bt('type')" prop="extraType" width="180" />
+            <el-table-column :label="bt('title')" prop="title" min-width="180" show-overflow-tooltip />
+            <el-table-column :label="bt('description')" prop="description" min-width="220" show-overflow-tooltip />
+            <el-table-column :label="bt('amount')" width="120">
               <template #default="scope">{{ formatMoney(scope.row.amount, detail?.currency) }}</template>
             </el-table-column>
           </el-table>
         </el-card>
 
         <el-card shadow="never">
-          <template #header><h3>Travellers</h3></template>
+          <template #header><h3>{{ bt('travellers') }}</h3></template>
           <div class="traveller-layout">
             <div class="traveller-list">
               <button
@@ -176,32 +176,32 @@
                 :class="{ active: selectedTraveler?.id === traveller.id }"
                 @click="selectedTraveler = traveller"
               >
-                <strong>Traveller {{ traveller.travelerNo }} · {{ fullName(traveller) }}</strong>
-                <el-tag v-if="traveller.primaryTraveler" size="small" type="primary">Primary traveller</el-tag>
+                <strong>{{ bt('travellerLabel', { no: traveller.travelerNo }) }} - {{ fullName(traveller) }}</strong>
+                <el-tag v-if="traveller.primaryTraveler" size="small" type="primary">{{ bt('primaryTraveller') }}</el-tag>
                 <span>{{ compact([traveller.email, traveller.phone]) }}</span>
               </button>
             </div>
             <div v-if="selectedTraveler" class="traveller-detail">
-              <h4>Basic</h4>
+              <h4>{{ bt('basic') }}</h4>
               <el-descriptions :column="2" border>
-                <el-descriptions-item label="Name">{{ fullName(selectedTraveler) }}</el-descriptions-item>
-                <el-descriptions-item label="Birth date">{{ parseTime(selectedTraveler.dateOfBirth, '{y}-{m}-{d}') }}</el-descriptions-item>
-                <el-descriptions-item label="Nationality">{{ selectedTraveler.nationality }}</el-descriptions-item>
-                <el-descriptions-item label="Place of birth">{{ selectedTraveler.placeOfBirth || '-' }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('name')">{{ fullName(selectedTraveler) }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('birthDate')">{{ parseTime(selectedTraveler.dateOfBirth, '{y}-{m}-{d}') }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('nationality')">{{ selectedTraveler.nationality }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('placeOfBirth')">{{ selectedTraveler.placeOfBirth || '-' }}</el-descriptions-item>
               </el-descriptions>
-              <h4>Contact</h4>
+              <h4>{{ bt('contact') }}</h4>
               <el-descriptions :column="2" border>
-                <el-descriptions-item label="Email">{{ selectedTraveler.email || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="Phone">{{ selectedTraveler.phone || '-' }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('email')">{{ selectedTraveler.email || '-' }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('phone')">{{ selectedTraveler.phone || '-' }}</el-descriptions-item>
               </el-descriptions>
-              <h4>Passport</h4>
+              <h4>{{ bt('passport') }}</h4>
               <el-descriptions :column="2" border>
-                <el-descriptions-item label="Passport No">{{ selectedTraveler.passportNumber || '-' }}</el-descriptions-item>
-                <el-descriptions-item label="Expiry">{{ parseTime(selectedTraveler.passportExpiryDate, '{y}-{m}-{d}') }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('passportNo')">{{ selectedTraveler.passportNumber || '-' }}</el-descriptions-item>
+                <el-descriptions-item :label="bt('expiry')">{{ parseTime(selectedTraveler.passportExpiryDate, '{y}-{m}-{d}') }}</el-descriptions-item>
               </el-descriptions>
-              <h4>Address</h4>
+              <h4>{{ bt('address') }}</h4>
               <el-descriptions :column="1" border>
-                <el-descriptions-item label="Address">
+                <el-descriptions-item :label="bt('address')">
                   {{ compact([selectedTraveler.address, selectedTraveler.city, selectedTraveler.region, selectedTraveler.postalCode, selectedTraveler.country]) }}
                 </el-descriptions-item>
               </el-descriptions>
@@ -224,21 +224,23 @@ import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useDict } from '@/utils/dict';
 import { parseTime } from '@/utils/ruoyi';
+import { useBoxhillI18n } from '../useBoxhillI18n';
 
+const { bt } = useBoxhillI18n();
 const { holidays_currency_unit } = toRefs<any>(useDict('holidays_currency_unit'));
 
 const ORDER_STATUS_PAID = 1;
 const ORDER_STATUS_CONFIRMED = 2;
 const ORDER_STATUS_COMPLETED = 3;
 
-const orderStatusOptions = [
-  { label: 'Pending payment', value: 0 },
-  { label: 'Paid', value: ORDER_STATUS_PAID },
-  { label: 'Confirmed', value: ORDER_STATUS_CONFIRMED },
-  { label: 'Completed', value: ORDER_STATUS_COMPLETED },
-  { label: 'Cancelled', value: 4 },
-  { label: 'Refunded', value: 5 }
-];
+const orderStatusOptions = computed(() => [
+  { label: bt('pendingPayment'), value: 0 },
+  { label: bt('paid'), value: ORDER_STATUS_PAID },
+  { label: bt('confirmed'), value: ORDER_STATUS_CONFIRMED },
+  { label: bt('completed'), value: ORDER_STATUS_COMPLETED },
+  { label: bt('cancelled'), value: 4 },
+  { label: bt('refunded'), value: 5 }
+]);
 
 const orderList = ref<OrderVO[]>([]);
 const detail = ref<OrderVO>();
@@ -291,9 +293,9 @@ const handleView = async (row: OrderVO | any) => {
 const canMarkCompleted = (status?: number) => status === ORDER_STATUS_PAID || status === ORDER_STATUS_CONFIRMED;
 
 const handleMarkCompleted = async (row: OrderVO | any) => {
-  await modal.confirm(`Confirm marking order "${row.orderNo}" as traveled?`);
+  await modal.confirm(bt('confirmMarkTraveled', { orderNo: row.orderNo }));
   await markOrderCompleted(row.id);
-  modal.msgSuccess('Marked as traveled');
+  modal.msgSuccess(bt('markedAsTraveled'));
   await getList();
   if (detailVisible.value && detail.value?.id === row.id) {
     const res = await getOrder(row.id);
@@ -302,7 +304,7 @@ const handleMarkCompleted = async (row: OrderVO | any) => {
   }
 };
 
-const orderStatusLabel = (status?: number) => orderStatusOptions.find(item => item.value === status)?.label || '-';
+const orderStatusLabel = (status?: number) => orderStatusOptions.value.find(item => item.value === status)?.label || '-';
 
 const statusTagType = (status?: number): TagProps['type'] => {
   if (status === 0) return 'warning';
