@@ -61,6 +61,7 @@
             <el-button type="primary" plain icon="Plus" @click="handleAdd" v-hasPermi="['boxhilltravel_manager:tour:add']">{{ bt('add') }}</el-button>
             <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate()" v-hasPermi="['boxhilltravel_manager:tour:edit']">{{ bt('edit') }}</el-button>
             <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete()" v-hasPermi="['boxhilltravel_manager:tour:remove']">{{ bt('delete') }}</el-button>
+            <el-button type="info" plain icon="Top" @click="handleImport" v-hasPermi="['boxhilltravel_manager:tour:add']">批量导入</el-button>
             <right-toolbar v-model:show-search="showSearch" :search="false" @query-table="getList"></right-toolbar>
           </div>
         </div>
@@ -384,6 +385,60 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 线路批量导入对话框 -->
+    <el-dialog
+      v-model="upload.open"
+      :title="upload.title"
+      width="450px"
+      append-to-body
+      :close-on-click-modal="false"
+      :show-close="!upload.isUploading"
+    >
+      <div v-loading="upload.isUploading" element-loading-text="正在导入，请稍候…">
+        <el-upload
+          ref="uploadRef"
+          :limit="1"
+          accept=".xlsx, .xls"
+          :headers="upload.headers"
+          :action="upload.url"
+          :disabled="upload.isUploading"
+          :on-progress="handleFileUploadProgress"
+          :on-success="handleFileSuccess"
+          :on-error="handleFileError"
+          :auto-upload="false"
+          drag
+        >
+          <el-icon class="el-icon--upload">
+            <UploadFilled />
+          </el-icon>
+          <div class="el-upload__text">
+            将文件拖到此处，或
+            <em>点击上传</em>
+          </div>
+          <template #tip>
+            <div class="text-center el-upload__tip">
+              <span>请使用批量导入模板，一次可导入多个线路（含目的地、行程、服务项与团期）</span>
+              <br />
+              <el-link
+                type="primary"
+                underline="never"
+                style="font-size: 12px; vertical-align: baseline"
+                @click="importTemplate"
+              >
+                下载模板
+              </el-link>
+            </div>
+          </template>
+        </el-upload>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" :loading="upload.isUploading" @click="submitFileForm">确 定</el-button>
+          <el-button :disabled="upload.isUploading" @click="upload.open = false">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -407,6 +462,7 @@ import { useDict } from '@/utils/dict';
 import { parseTime } from '@/utils/ruoyi';
 import modal from '@/plugins/modal';
 import tab from '@/plugins/tab';
+import { globalHeaders, download as requestDownload } from '@/utils/request';
 
 const { bt } = useBoxhillI18n();
 
@@ -426,6 +482,23 @@ const total = ref(0);
 
 const queryFormRef = ref<ElFormInstance>();
 const tourFormRef = ref<ElFormInstance>();
+const uploadRef = ref<ElUploadInstance>();
+
+/*** 线路批量导入参数 */
+const upload = reactive<ImportOption>({
+  // 是否显示弹出层（线路导入）
+  open: false,
+  // 弹出层标题（线路导入）
+  title: '',
+  // 是否禁用上传
+  isUploading: false,
+  // 是否更新已经存在的数据（此导入不支持更新，字段保留仅为满足类型约束）
+  updateSupport: 0,
+  // 设置上传的请求头部
+  headers: globalHeaders(),
+  // 上传的地址
+  url: import.meta.env.VITE_APP_BASE_API + '/boxhilltravel_manager/tour/importData'
+});
 
 const initFormData: TourForm = {
   id: undefined,
@@ -637,6 +710,52 @@ const handleServiceItem = (row: Partial<TourVO>) => {
 
 const handleDeparture = (row: Partial<TourVO>) => {
   tab.openPage('/boxhilltravel_manager/departure', bt('text002') + row.name, { tourId: row.id, tourName: row.name });
+};
+
+/** 批量导入按钮操作 */
+const handleImport = () => {
+  upload.title = '线路批量导入';
+  upload.open = true;
+};
+
+/** 下载导入模板 */
+const importTemplate = () => {
+  requestDownload('boxhilltravel_manager/tour/importTemplate', {}, `tours_import_template_${new Date().getTime()}.xlsx`);
+};
+
+/** 文件上传中处理 */
+const handleFileUploadProgress = () => {
+  upload.isUploading = true;
+};
+
+const formatImportResultMessage = (message: unknown) => {
+  return String(message ?? '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/<[^>]+>/g, '');
+};
+
+/** 文件上传成功处理 */
+const handleFileSuccess = (response: any, file: UploadFile) => {
+  upload.open = false;
+  upload.isUploading = false;
+  uploadRef.value?.handleRemove(file);
+  ElMessageBox.alert(formatImportResultMessage(response.msg), '导入结果', {
+    customClass: 'import-result-box'
+  });
+  getList();
+};
+
+/** 文件上传失败处理 */
+const handleFileError = (error: any) => {
+  upload.isUploading = false;
+  const message = error?.message ? formatImportResultMessage(error.message) : '导入失败，请稍后重试';
+  modal.msgError(message);
+};
+
+/** 提交上传文件 */
+const submitFileForm = () => {
+  uploadRef.value?.submit();
 };
 
 onMounted(() => {
