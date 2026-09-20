@@ -122,6 +122,18 @@ export default {
   boxhilltravelManager: {
     text: {
       text001: "ID不能为空",
+      homeBannerList: "首页横幅列表",
+      addHomeBanner: "新增首页横幅",
+      editHomeBanner: "修改首页横幅",
+      image: "横幅图片",
+      imageRequired: "横幅图片不能为空",
+      altText: "替代文本",
+      subtitle: "副标题",
+      linkUrl: "跳转链接",
+      enterAltText: "请输入替代文本",
+      enterLinkUrl: "请输入跳转链接",
+      enterBannerSubtitle: "请输入副标题",
+      confirmDeleteHomeBanner: "确认删除首页横幅 {title} 吗？",
       profileNickname: "Profile 昵称",
       seoKeywords: "SEO关键词",
       seoDescription: "SEO描述",

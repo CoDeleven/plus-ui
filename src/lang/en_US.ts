@@ -122,6 +122,18 @@ export default {
   boxhilltravelManager: {
     text: {
       text001: "ID is required",
+      homeBannerList: "Home Banner List",
+      addHomeBanner: "Add Home Banner",
+      editHomeBanner: "Edit Home Banner",
+      image: "Image",
+      imageRequired: "Image is required",
+      altText: "Alt Text",
+      subtitle: "Subtitle",
+      linkUrl: "Link URL",
+      enterAltText: "Please enter alt text",
+      enterLinkUrl: "Please enter link URL",
+      enterBannerSubtitle: "Please enter subtitle",
+      confirmDeleteHomeBanner: "Delete home banner {title}?",
       profileNickname: "Profile Nickname",
       seoKeywords: "SEO Keywords",
       seoDescription: "SEO Description",
