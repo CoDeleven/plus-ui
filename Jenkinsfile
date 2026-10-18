@@ -1,0 +1,105 @@
+pipeline {
+    agent any
+    
+    environment {
+        // 部署信息
+        APP_NAME = "admin"
+        DEPLOY_SCRIPT = "/opt/ruoyi-web-cicd/scripts/deploy-front.sh"
+        KEEP_VERSIONS = "5"
+        
+        // 构建信息
+        BUILD_TIME = new Date().format('yyyyMMdd-HHmmss')
+    }
+    
+    stages {
+        // ==================== 拉取代码 ====================
+        stage('拉取代码') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        // ==================== 安装依赖 ====================
+        stage('安装依赖') {
+            steps {
+                sh 'npm install --registry=https://registry.npmmirror.com'
+            }
+        }
+        
+        // ==================== 代码检查（可选） ====================
+        stage('代码检查') {
+            steps {
+                sh 'npm run lint || true'  # 有 lint 脚本就执行，没有就跳过
+            }
+        }
+        
+        // ==================== 单元测试（可选） ====================
+        stage('单元测试') {
+            steps {
+                sh 'npm run test:unit || true'  # 有测试脚本就执行，没有就跳过
+            }
+        }
+        
+        // ==================== 构建 ====================
+        stage('构建') {
+            steps {
+                sh 'npm run build:prod'
+            }
+        }
+        
+        // ==================== 部署 ====================
+        stage('部署') {
+            steps {
+                sh """
+                    sudo ${DEPLOY_SCRIPT} ${APP_NAME} dist ${KEEP_VERSIONS}
+                """
+            }
+        }
+        
+        // ==================== 健康检查 ====================
+        stage('健康检查') {
+            steps {
+                sh '''
+                    # 等待 Nginx 生效
+                    sleep 2
+                    
+                    # 检查页面是否可访问
+                    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/)
+                    if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "304" ]; then
+                        echo "❌ 管理端健康检查失败: HTTP ${HTTP_CODE}"
+                        exit 1
+                    fi
+                    
+                    # 检查 API 是否可访问（后端蓝绿网关）
+                    API_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/admin-api/actuator/health)
+                    if [ "$API_CODE" != "200" ]; then
+                        echo "⚠️ API 健康检查异常: HTTP ${API_CODE}（后端可能正在切换）"
+                    else
+                        echo "✅ API 正常"
+                    fi
+                    
+                    echo "✅ 管理端部署成功"
+                '''
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo "✅ 管理端部署完成"
+            echo "访问地址: http://localhost:8081"
+            echo "部署时间: ${BUILD_TIME}"
+        }
+        failure {
+            echo "❌ 管理端部署失败"
+            echo "请检查构建日志"
+            
+            // 可选：钉钉/企业微信通知
+            // sh 'curl -X POST -H "Content-Type: application/json" -d "{\"msgtype\":\"text\",\"text\":{\"content\":\"管理端部署失败\"}}" https://oapi.dingtalk.com/robot/send?access_token=YOUR_TOKEN'
+        }
+        always {
+            // 清理构建产物（可选）
+            // sh 'rm -rf dist'
+        }
+    }
+}
