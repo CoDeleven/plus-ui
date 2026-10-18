@@ -79,13 +79,10 @@ pipeline {
         failure {
             echo "❌ 管理端部署失败"
             echo "请检查构建日志"
-            
-            // 可选：钉钉/企业微信通知
-            // sh 'curl -X POST -H "Content-Type: application/json" -d "{\"msgtype\":\"text\",\"text\":{\"content\":\"管理端部署失败\"}}" https://oapi.dingtalk.com/robot/send?access_token=YOUR_TOKEN'
         }
         always {
             // 清理构建产物（可选）
-            // sh 'rm -rf dist'
+            sh 'rm -rf dist'
         }
     }
 }
