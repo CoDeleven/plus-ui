@@ -60,14 +60,14 @@ pipeline {
                     sleep 2
                     
                     # 检查页面是否可访问
-                    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://admin11335.boxhilltravel.com)
+                    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081)
                     if [ "$HTTP_CODE" != "200" ] && [ "$HTTP_CODE" != "304" ]; then
                         echo "❌ 管理端健康检查失败: HTTP ${HTTP_CODE}"
                         exit 1
                     fi
                     
                     # 检查 API 是否可访问（后端蓝绿网关）
-                    API_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://admin11335.boxhilltravel.com/prod-api/auth/code)
+                    API_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/prod-api/auth/code)
                     if [ "$API_CODE" != "200" ]; then
                         echo "⚠️ API 健康检查异常: HTTP ${API_CODE}（后端可能正在切换）"
                     else
@@ -90,8 +90,8 @@ pipeline {
             echo "❌ 管理端部署失败"
             echo "请检查构建日志"
         }
-        // always {
-        //     sh 'rm -rf dist'
-        // }
+        always {
+            sh 'rm -rf dist'
+        }
     }
 }
