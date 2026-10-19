@@ -26,7 +26,13 @@ pipeline {
         // ==================== 安装依赖 ====================
         stage('安装依赖') {
             steps {
-                sh 'npm install'
+                sh '''
+                        # 安装 pnpm
+                        npm install -g pnpm
+                        
+                        # 使用 pnpm 安装
+                        pnpm install --registry=https://registry.npmmirror.com
+                   '''
             }
         }
         
