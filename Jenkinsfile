@@ -81,7 +81,6 @@ pipeline {
             echo "请检查构建日志"
         }
         always {
-            // 清理构建产物（可选）
             sh 'rm -rf dist'
         }
     }
