@@ -39,7 +39,7 @@ pipeline {
         // ==================== 构建 ====================
         stage('构建') {
             steps {
-                sh 'npm run build:prod'
+                sh 'pnpm run build:prod'
             }
         }
         
@@ -90,8 +90,8 @@ pipeline {
             echo "❌ 管理端部署失败"
             echo "请检查构建日志"
         }
-        always {
-            sh 'rm -rf dist'
-        }
+        // always {
+        //     sh 'rm -rf dist'
+        // }
     }
 }
