@@ -67,7 +67,7 @@ pipeline {
                     fi
                     
                     # 检查 API 是否可访问（后端蓝绿网关）
-                    API_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://admin11335.boxhilltravel.com/prod-api/actuator/health)
+                    API_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://admin11335.boxhilltravel.com/prod-api/auth/code)
                     if [ "$API_CODE" != "200" ]; then
                         echo "⚠️ API 健康检查异常: HTTP ${API_CODE}（后端可能正在切换）"
                     else
