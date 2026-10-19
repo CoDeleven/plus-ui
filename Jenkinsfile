@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    tools {
+        nodejs 'Node22.16.0'
+    }
+
     environment {
         // 部署信息
         APP_NAME = "admin"
