@@ -1,4 +1,4 @@
-import type { OrderQuery, OrderVO } from '@/api/boxhilltravel_manager/order/types';
+import type { OrderQuery, OrderRefundForm, OrderRefundVO, OrderVO } from '@/api/boxhilltravel_manager/order/types';
 import type { PageResult } from '@/api/types';
 import type { AxiosPromise } from '@/utils/api-types';
 import request from '@/utils/request';
@@ -22,5 +22,20 @@ export const markOrderCompleted = (id: string | number): AxiosPromise<void> => {
   return request({
     url: '/boxhilltravel_manager/order/' + id + '/markCompleted',
     method: 'put'
+  });
+};
+
+export const refundOrder = (id: string | number, data: OrderRefundForm): AxiosPromise<OrderRefundVO> => {
+  return request({
+    url: '/boxhilltravel_manager/order/' + id + '/refund',
+    method: 'post',
+    data
+  });
+};
+
+export const listOrderRefunds = (id: string | number): AxiosPromise<OrderRefundVO[]> => {
+  return request({
+    url: '/boxhilltravel_manager/order/' + id + '/refunds',
+    method: 'get'
   });
 };

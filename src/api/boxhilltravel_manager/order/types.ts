@@ -1,3 +1,33 @@
+export type OrderAmount = number | string;
+
+export type PaymentStatus =
+  | 'PENDING'
+  | 'CHECKOUT_CREATED'
+  | 'PROCESSING'
+  | 'PAID'
+  | 'PAYMENT_FAILED'
+  | 'EXPIRED'
+  | 'PARTIALLY_REFUNDED'
+  | 'REFUNDED';
+
+export type RefundStatus = 'PENDING' | 'SUCCEEDED' | 'FAILED' | 'CANCELED';
+
+export interface OrderRefundForm {
+  amount: string;
+  reason: string;
+}
+
+export interface OrderRefundVO {
+  id: string | number;
+  orderId: string | number;
+  stripeRefundId?: string;
+  amount: OrderAmount;
+  currency: string;
+  status: RefundStatus;
+  reason: string;
+  createTime?: string;
+}
+
 export interface OrderTravelerVO {
   id: string | number;
   orderId: string | number;
@@ -29,7 +59,7 @@ export interface OrderExtraVO {
   refId?: string | number;
   title: string;
   description?: string;
-  amount: number;
+  amount: OrderAmount;
   quantity: number;
   metadata?: string;
 }
@@ -39,9 +69,12 @@ export interface OrderPaymentVO {
   orderId: string | number;
   paymentNo: string;
   paymentMethod: string;
-  amount: number;
+  amount: OrderAmount;
   currency: string;
-  status: number;
+  status: PaymentStatus;
+  stripeCheckoutSessionId?: string;
+  stripePaymentIntentId?: string;
+  checkoutExpiresAt?: string;
   paidTime?: string;
 }
 
@@ -60,11 +93,13 @@ export interface OrderVO {
   returnDate?: string;
   travelerCount: number;
   currency: string;
-  unitPrice: number;
-  tourAmount: number;
-  extrasAmount: number;
-  totalAmount: number;
-  paidAmount: number;
+  unitPrice: OrderAmount;
+  tourAmount: OrderAmount;
+  extrasAmount: OrderAmount;
+  totalAmount: OrderAmount;
+  paidAmount: OrderAmount;
+  refundedAmount?: OrderAmount;
+  paymentDeadline?: string;
   status: number;
   contactName?: string;
   contactEmail?: string;
@@ -80,6 +115,7 @@ export interface OrderVO {
   travelers?: OrderTravelerVO[];
   extras?: OrderExtraVO[];
   payment?: OrderPaymentVO;
+  refunds?: OrderRefundVO[];
 }
 
 export interface OrderQuery extends PageQuery {
