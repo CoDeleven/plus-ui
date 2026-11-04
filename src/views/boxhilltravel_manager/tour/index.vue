@@ -70,6 +70,21 @@
       <el-table v-loading="loading" border class="data-table" :data="tourList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column :label="bt('tourId')" align="center" prop="id" />
+        <el-table-column :label="bt('sortOrder')" align="center" prop="sortOrder" width="130">
+          <template #default="scope">
+            <el-input-number
+              v-model="scope.row.sortOrder"
+              :min="0"
+              :step="1"
+              step-strictly
+              size="small"
+              :controls="false"
+              :disabled="!canEditTour"
+              style="width: 80px"
+              @change="(value: number | undefined, oldValue: number | undefined) => handleSortChange(scope.row, value, oldValue)"
+            />
+          </template>
+        </el-table-column>
         <el-table-column :label="bt('tourCodeUnique')" align="center" prop="code" />
         <el-table-column :label="bt('tourName')" align="center" prop="name" min-width="200">
           <template #default="scope">
@@ -294,6 +309,10 @@
             :inactive-value="0"
           />
         </el-form-item>
+        <el-form-item :label="bt('sortOrder')" prop="sortOrder">
+          <el-input-number v-model="form.sortOrder" :min="0" :step="1" step-strictly controls-position="right" />
+          <span class="ml-2 text-xs text-gray-400">{{ bt('sortOrderTip') }}</span>
+        </el-form-item>
         <el-form-item :label="bt('seoTitle')" prop="seoTitle">
           <el-input v-model="form.seoTitle" :placeholder="bt('enterSeoTitle')" />
         </el-form-item>
@@ -447,6 +466,7 @@
 import { useBoxhillI18n } from '../useBoxhillI18n';
 import {  addTour,
   changeTourStatus,
+  updateTourSort,
   delTour,
   getTour,
   listTour,
@@ -461,6 +481,7 @@ import { useTableSelection } from '@/hooks/table/useTableSelection';
 import { useDict } from '@/utils/dict';
 import { parseTime } from '@/utils/ruoyi';
 import modal from '@/plugins/modal';
+import { checkPermi } from '@/utils/permission';
 import tab from '@/plugins/tab';
 import { globalHeaders, download as requestDownload } from '@/utils/request';
 
@@ -522,6 +543,7 @@ const initFormData: TourForm = {
   latestArrivalTime: undefined,
   earliestDepartureTime: undefined,
   status: undefined,
+  sortOrder: undefined,
   seoTitle: undefined,
   seoDescription: undefined,
   seoKeywords: undefined,
@@ -684,6 +706,25 @@ const handleDelete = async (row?: Partial<TourVO>) => {
 };
 
 
+
+const canEditTour = checkPermi(['boxhilltravel_manager:tour:edit']);
+
+// 只在失焦/回车时提交（不显示加减按钮），避免连续点击产生乱序请求
+const handleSortChange = async (row: Partial<TourVO>, value: number | undefined, oldValue: number | undefined) => {
+  if (value === undefined || value === null) {
+    row.sortOrder = oldValue;
+    return;
+  }
+  if (value === oldValue) return;
+  try {
+    await updateTourSort(row.id, value);
+    modal.msgSuccess(bt('sortUpdated'));
+    await getList();
+  } catch (err) {
+    console.error('Failed to update tour sort order', err);
+    row.sortOrder = oldValue;
+  }
+};
 
 const handleStatusChange = async (row: Partial<TourVO>) => {
   const text = row.status === statusActiveValue ? bt('enabledStatus') : bt('disableAction');

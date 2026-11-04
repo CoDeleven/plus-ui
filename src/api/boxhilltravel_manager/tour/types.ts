@@ -96,6 +96,10 @@ export interface TourVO {
    */
   status: number;
   /**
+   * 展示排序，数值越小越靠前
+   */
+  sortOrder?: number;
+  /**
    * SEO标题
    */
   seoTitle: string;
@@ -198,6 +202,10 @@ export interface TourForm extends BaseEntity {
    * 状态 0草稿 1上架 2下架
    */
   status?: number;
+  /**
+   * 展示排序，数值越小越靠前
+   */
+  sortOrder?: number;
   /**
    * SEO标题
    */

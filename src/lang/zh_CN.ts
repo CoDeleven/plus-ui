@@ -224,6 +224,7 @@ export default {
       phoneNumber: "手机号",
       discountRate: "折扣率",
       sortOrder: "排序",
+      sortOrderTip: "数值越小，网站上越靠前",
       sortRequired: "排序不能为空",
       sortUpdated: "排序已更新",
       description: "描述",

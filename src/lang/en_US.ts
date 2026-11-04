@@ -226,6 +226,7 @@ export default {
       sortOrder: "Sort Order",
       sortRequired: "Sort order is required",
       sortUpdated: "Sort order updated",
+      sortOrderTip: "Smaller number = shown first on the website",
       description: "Description",
       descriptionRequired: "Description is required",
       search: "Search",
