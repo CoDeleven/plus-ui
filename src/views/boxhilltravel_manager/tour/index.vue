@@ -159,6 +159,11 @@
             <image-preview :src="scope.row.mapImageUrl" :width="50" :height="50"/>
           </template>
         </el-table-column>
+        <el-table-column :label="bt('galleryImages')" align="center" prop="imagesUrl" width="100">
+          <template #default="scope">
+            <image-preview :src="scope.row.imagesUrl" :width="50" :height="50"/>
+          </template>
+        </el-table-column>
         <el-table-column :label="bt('status')" align="center" prop="status">
           <template #default="scope">
             <el-switch
@@ -285,6 +290,10 @@
         <el-form-item :label="bt('mapUrl')" prop="mapImage">
           <image-upload v-model="form.mapImage" :limit="1"/>
         </el-form-item>
+        <el-form-item :label="bt('galleryImages')" prop="images">
+          <image-upload v-model="form.images" :limit="9"/>
+          <div class="el-upload__tip">{{ bt('galleryImagesTip') }}</div>
+        </el-form-item>
         <el-form-item :label="bt('notes')" prop="notes">
             <el-input v-model="form.notes" type="textarea" :placeholder="bt('enterContent')" />
         </el-form-item>
@@ -387,6 +396,10 @@
         </el-descriptions-item>
         <el-descriptions-item :label="bt('mapImage')" :span="1">
           <image-preview v-if="detailForm.mapImageUrl" :src="detailForm.mapImageUrl" :width="70" :height="70"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item :label="bt('galleryImages')" :span="2">
+          <image-preview v-if="detailForm.imagesUrl" :src="detailForm.imagesUrl" :width="70" :height="70"/>
           <span v-else>-</span>
         </el-descriptions-item>
         <el-descriptions-item :label="bt('description')" :span="2">{{ detailForm.description || '-' }}</el-descriptions-item>
@@ -539,6 +552,7 @@ const initFormData: TourForm = {
   currency: undefined,
   coverImage: undefined,
   mapImage: undefined,
+  images: undefined,
   notes: undefined,
   latestArrivalTime: undefined,
   earliestDepartureTime: undefined,

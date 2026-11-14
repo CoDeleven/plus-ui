@@ -80,6 +80,14 @@ export interface TourVO {
    */
   mapImageUrl: string;
   /**
+   * 线路图册(多图，OSS id 用逗号分隔)
+   */
+  images?: string;
+  /**
+   * 线路图册Url(逗号分隔)
+   */
+  imagesUrl?: string;
+  /**
    * ????
    */
   notes: string;
@@ -186,6 +194,10 @@ export interface TourForm extends BaseEntity {
    * 地图URL
    */
   mapImage?: string;
+  /**
+   * 线路图册(多图，OSS id 用逗号分隔)
+   */
+  images?: string;
   /**
    * ????
    */

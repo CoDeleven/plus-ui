@@ -211,6 +211,8 @@ export default {
       cover: "封面",
       coverImage: "封面图",
       coverImageUrl: "封面图URL",
+      galleryImages: "线路图册",
+      galleryImagesTip: "最多9张，第一张将作为只能展示单图场景下的缩略图",
       level: "层级",
       levelRequired: "层级不能为空",
       displayTag: "展示标签",

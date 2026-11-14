@@ -211,6 +211,8 @@ export default {
       cover: "Cover",
       coverImage: "Cover Image",
       coverImageUrl: "Cover Image URL",
+      galleryImages: "Gallery Images",
+      galleryImagesTip: "Up to 9 photos. The first one is used as a thumbnail wherever only one image fits.",
       level: "Level",
       levelRequired: "Level is required",
       displayTag: "Display Tag",
