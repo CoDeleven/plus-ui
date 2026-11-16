@@ -70,6 +70,21 @@
       <el-table v-loading="loading" border class="data-table" :data="tourList" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column :label="bt('tourId')" align="center" prop="id" />
+        <el-table-column :label="bt('sortOrder')" align="center" prop="sortOrder" width="130">
+          <template #default="scope">
+            <el-input-number
+              v-model="scope.row.sortOrder"
+              :min="0"
+              :step="1"
+              step-strictly
+              size="small"
+              :controls="false"
+              :disabled="!canEditTour"
+              style="width: 80px"
+              @change="(value: number | undefined, oldValue: number | undefined) => handleSortChange(scope.row, value, oldValue)"
+            />
+          </template>
+        </el-table-column>
         <el-table-column :label="bt('tourCodeUnique')" align="center" prop="code" />
         <el-table-column :label="bt('tourName')" align="center" prop="name" min-width="200">
           <template #default="scope">
@@ -142,6 +157,11 @@
         <el-table-column :label="bt('mapUrl')" align="center" prop="mapImageUrl" width="100">
           <template #default="scope">
             <image-preview :src="scope.row.mapImageUrl" :width="50" :height="50"/>
+          </template>
+        </el-table-column>
+        <el-table-column :label="bt('galleryImages')" align="center" prop="imagesUrl" width="100">
+          <template #default="scope">
+            <image-preview :src="scope.row.imagesUrl" :width="50" :height="50"/>
           </template>
         </el-table-column>
         <el-table-column :label="bt('status')" align="center" prop="status">
@@ -270,6 +290,10 @@
         <el-form-item :label="bt('mapUrl')" prop="mapImage">
           <image-upload v-model="form.mapImage" :limit="1"/>
         </el-form-item>
+        <el-form-item :label="bt('galleryImages')" prop="images">
+          <image-upload v-model="form.images" :limit="9"/>
+          <div class="el-upload__tip">{{ bt('galleryImagesTip') }}</div>
+        </el-form-item>
         <el-form-item :label="bt('notes')" prop="notes">
             <el-input v-model="form.notes" type="textarea" :placeholder="bt('enterContent')" />
         </el-form-item>
@@ -293,6 +317,10 @@
             :active-value="1"
             :inactive-value="0"
           />
+        </el-form-item>
+        <el-form-item :label="bt('sortOrder')" prop="sortOrder">
+          <el-input-number v-model="form.sortOrder" :min="0" :step="1" step-strictly controls-position="right" />
+          <span class="ml-2 text-xs text-gray-400">{{ bt('sortOrderTip') }}</span>
         </el-form-item>
         <el-form-item :label="bt('seoTitle')" prop="seoTitle">
           <el-input v-model="form.seoTitle" :placeholder="bt('enterSeoTitle')" />
@@ -368,6 +396,10 @@
         </el-descriptions-item>
         <el-descriptions-item :label="bt('mapImage')" :span="1">
           <image-preview v-if="detailForm.mapImageUrl" :src="detailForm.mapImageUrl" :width="70" :height="70"/>
+          <span v-else>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item :label="bt('galleryImages')" :span="2">
+          <image-preview v-if="detailForm.imagesUrl" :src="detailForm.imagesUrl" :width="70" :height="70"/>
           <span v-else>-</span>
         </el-descriptions-item>
         <el-descriptions-item :label="bt('description')" :span="2">{{ detailForm.description || '-' }}</el-descriptions-item>
@@ -447,6 +479,7 @@
 import { useBoxhillI18n } from '../useBoxhillI18n';
 import {  addTour,
   changeTourStatus,
+  updateTourSort,
   delTour,
   getTour,
   listTour,
@@ -461,6 +494,7 @@ import { useTableSelection } from '@/hooks/table/useTableSelection';
 import { useDict } from '@/utils/dict';
 import { parseTime } from '@/utils/ruoyi';
 import modal from '@/plugins/modal';
+import { checkPermi } from '@/utils/permission';
 import tab from '@/plugins/tab';
 import { globalHeaders, download as requestDownload } from '@/utils/request';
 
@@ -518,10 +552,12 @@ const initFormData: TourForm = {
   currency: undefined,
   coverImage: undefined,
   mapImage: undefined,
+  images: undefined,
   notes: undefined,
   latestArrivalTime: undefined,
   earliestDepartureTime: undefined,
   status: undefined,
+  sortOrder: undefined,
   seoTitle: undefined,
   seoDescription: undefined,
   seoKeywords: undefined,
@@ -684,6 +720,25 @@ const handleDelete = async (row?: Partial<TourVO>) => {
 };
 
 
+
+const canEditTour = checkPermi(['boxhilltravel_manager:tour:edit']);
+
+// 只在失焦/回车时提交（不显示加减按钮），避免连续点击产生乱序请求
+const handleSortChange = async (row: Partial<TourVO>, value: number | undefined, oldValue: number | undefined) => {
+  if (value === undefined || value === null) {
+    row.sortOrder = oldValue;
+    return;
+  }
+  if (value === oldValue) return;
+  try {
+    await updateTourSort(row.id, value);
+    modal.msgSuccess(bt('sortUpdated'));
+    await getList();
+  } catch (err) {
+    console.error('Failed to update tour sort order', err);
+    row.sortOrder = oldValue;
+  }
+};
 
 const handleStatusChange = async (row: Partial<TourVO>) => {
   const text = row.status === statusActiveValue ? bt('enabledStatus') : bt('disableAction');

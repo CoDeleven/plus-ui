@@ -68,6 +68,22 @@ export const changeTourStatus = (id: string | number, status:  number) => {
   });
 };
 
+/**
+ * 修改线路展示排序（数值越小越靠前）
+ * @param id
+ * @param sortOrder
+ */
+export const updateTourSort = (id: string | number, sortOrder: number) => {
+  return request({
+    url: '/boxhilltravel_manager/tour/changeSortOrder',
+    method: 'put',
+    data: {
+      id,
+      sortOrder
+    }
+  });
+};
+
 
 /**
  * 删除线路管理

@@ -80,6 +80,14 @@ export interface TourVO {
    */
   mapImageUrl: string;
   /**
+   * 线路图册(多图，OSS id 用逗号分隔)
+   */
+  images?: string;
+  /**
+   * 线路图册Url(逗号分隔)
+   */
+  imagesUrl?: string;
+  /**
    * ????
    */
   notes: string;
@@ -95,6 +103,10 @@ export interface TourVO {
    * 状态 0草稿 1上架 2下架
    */
   status: number;
+  /**
+   * 展示排序，数值越小越靠前
+   */
+  sortOrder?: number;
   /**
    * SEO标题
    */
@@ -183,6 +195,10 @@ export interface TourForm extends BaseEntity {
    */
   mapImage?: string;
   /**
+   * 线路图册(多图，OSS id 用逗号分隔)
+   */
+  images?: string;
+  /**
    * ????
    */
   notes?: string;
@@ -198,6 +214,10 @@ export interface TourForm extends BaseEntity {
    * 状态 0草稿 1上架 2下架
    */
   status?: number;
+  /**
+   * 展示排序，数值越小越靠前
+   */
+  sortOrder?: number;
   /**
    * SEO标题
    */
